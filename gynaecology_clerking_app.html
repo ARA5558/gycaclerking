@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gynaecology Clerking App (GYCA)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Quicksand:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --violet: #8A2BE2; --violet-dark: #4A00E0; --violet-mid: #B14BF4; --violet-soft: #F3E8FF; --violet-pale: #FAF5FF;
+            --bg: #F8F9FA; --surface: #FFFFFF; --border: #E2E8F0; --text: #1E293B; --text-mid: #64748B;
+            --shadow-card: 0 12px 30px -8px rgba(138, 43, 226, 0.15);
+            --r-xl: 28px; --r-md: 16px; --r-sm: 10px;
+            --font: 'Nunito', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: var(--font); background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 15% 25%, rgba(138, 43, 226, 0.45) 0%, transparent 55%), 
+                radial-gradient(circle at 85% 75%, rgba(0, 212, 255, 0.4) 0%, transparent 55%), 
+                radial-gradient(circle at 50% 50%, rgba(177, 75, 244, 0.3) 0%, transparent 60%);
+            background-attachment: fixed; color: var(--text); min-height: 100vh; padding-bottom: 96px; -webkit-tap-highlight-color: transparent;
+        }
+
+        .top-action-bar { position: fixed; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; z-index: 90; flex-wrap: wrap; gap: 8px; }
+        .pill-btn { background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border: 1.5px solid var(--border); padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 800; color: var(--violet-dark); cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.06); display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s; }
+        .pill-btn:hover { transform: translateY(-2px); border-color: var(--violet); box-shadow: 0 6px 16px rgba(138, 43, 226, 0.15); }
+
+        .toast-msg { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1E293B; color: white; padding: 12px 24px; border-radius: 999px; font-size: 14px; font-weight: 800; z-index: 300; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.25); text-align: center; max-width: 90vw; }
+
+        .landing-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px 24px; text-align: center; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: white; border: 1.5px solid var(--violet-soft); padding: 8px 18px; border-radius: 999px; font-size: 14px; font-weight: 800; color: var(--violet-dark); margin-bottom: 20px; }
+        .hero-title { font-family: 'Quicksand', sans-serif; font-size: 40px; font-weight: 900; color: var(--violet-dark); line-height: 1.2; margin-bottom: 8px; letter-spacing: -1px; }
+        .hero-subtitle { font-size: 18px; color: var(--text-mid); font-weight: 700; margin-bottom: 32px; }
+        
+        .info-card { background: rgba(255, 255, 255, 0.9); border: 2px solid white; border-radius: 20px; padding: 20px; max-width: 480px; width: 100%; margin-bottom: 14px; box-shadow: var(--shadow-card); text-align: left; backdrop-filter: blur(12px); }
+        .info-title { font-weight: 900; font-size: 16px; color: var(--violet-dark); display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .info-text { font-size: 14px; color: var(--text-mid); font-weight: 700; line-height: 1.6; }
+
+        .consent-box { background: rgba(243, 232, 255, 0.95); border: 2px solid var(--violet-mid); border-radius: 16px; padding: 16px; max-width: 480px; width: 100%; margin-bottom: 24px; text-align: left; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; box-shadow: 0 8px 20px rgba(138,43,226,0.1); }
+        .consent-box input { width: 24px; height: 24px; accent-color: var(--violet-dark); cursor: pointer; margin-top: 2px; flex-shrink: 0; }
+        .consent-text { font-size: 13px; font-weight: 700; color: #334155; line-height: 1.5; }
+        .consent-agree { font-size: 14px; font-weight: 900; color: var(--violet-dark); display: block; margin-top: 4px; }
+
+        .lang-btns { display: flex; gap: 16px; width: 100%; max-width: 480px; justify-content: center; }
+        .lang-btn { flex: 1; padding: 20px 10px; border-radius: 22px; border: none; cursor: pointer; transition: all 0.3s; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .lang-btn-en { background: linear-gradient(135deg, #8E2DE2, #4A00E0); box-shadow: 0 10px 24px rgba(74, 0, 224, 0.25); }
+        .lang-btn-ms { background: linear-gradient(135deg, #00d2ff, #3a7bd5); box-shadow: 0 10px 24px rgba(58, 123, 213, 0.25); }
+        .lang-btn:hover { transform: translateY(-4px); filter: brightness(1.1); }
+        .lang-btn strong { font-size: 18px; font-weight: 900; font-family: 'Quicksand', sans-serif; margin-bottom: 6px; }
+        .lang-btn span { font-size: 13px; font-weight: 700; opacity: 0.9; }
+
+        .app-container { display: none; max-width: 680px; margin: 0 auto; padding: 72px 16px 24px; }
+        .step-header { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; border: 2px solid white; box-shadow: var(--shadow-card); backdrop-filter: blur(10px); }
+        .step-progress-text { font-size: 14px; font-weight: 900; color: var(--violet); text-transform: uppercase; }
+        .step-card { background: rgba(255, 255, 255, 0.98); border-radius: var(--r-xl); padding: 30px 24px; border: 2px solid white; box-shadow: var(--shadow-card); margin-bottom: 24px; position: relative; }
+        .step-card-title { font-family: 'Quicksand', sans-serif; font-size: 24px; font-weight: 900; color: var(--violet-dark); margin-bottom: 24px; text-align: center; }
+        
+        .field-group { margin-bottom: 20px; }
+        .field-group label { display: block; font-size: 13px; font-weight: 800; color: var(--text-mid); margin-bottom: 8px; text-transform: uppercase; }
+        .field-group input, .field-group select, .field-group textarea { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: var(--r-md); font-family: var(--font); font-size: 15px; font-weight: 700; color: var(--text); background: #F8FAFC; outline: none; transition: all 0.2s; }
+        .field-group input:focus, .field-group select:focus, .field-group textarea:focus { border-color: var(--violet); background: white; box-shadow: 0 0 0 3px var(--violet-soft); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 520px) { .grid-2 { grid-template-columns: 1fr; } }
+        
+        .check-pill { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 2px solid var(--border); border-radius: var(--r-md); background: white; cursor: pointer; font-size: 14px; font-weight: 800; color: var(--text); user-select: none; transition: all 0.2s; }
+        .check-pill:hover { border-color: var(--violet-mid); background: var(--violet-pale); }
+        .check-pill input { width: 20px; height: 20px; accent-color: var(--violet); margin-top: 2px; cursor: pointer; flex-shrink: 0; }
+        
+        .top-active-box { background: var(--violet-pale); border: 2px solid var(--violet); border-radius: var(--r-md); padding: 20px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(138,43,226,0.15); display: none; animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+        .top-active-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 2px dashed var(--violet-soft); padding-bottom: 12px; }
+        .top-active-title { font-size: 14px; font-weight: 900; color: var(--violet-dark); margin: 0; text-transform: uppercase; }
+        .btn-close-box { background: var(--violet); color: white; border: none; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 900; cursor: pointer; }
+        .btn-close-box:active { transform: scale(0.95); }
+
+        .sub-box { background: #F1F5F9; padding: 16px; border-radius: var(--r-md); margin-top: 10px; border: 1px dashed #CBD5E1; display: none; }
+
+        .counter-controls { display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--violet-pale); padding: 12px; border-radius: var(--r-md); border: 2px solid var(--violet-soft); }
+        .counter-controls button { width: 40px; height: 40px; border-radius: var(--r-sm); border: none; background: var(--violet); color: white; font-size: 20px; font-weight: 900; cursor: pointer; }
+        .counter-controls button:active { transform: scale(0.9); }
+        .counter-controls input { width: 50px; text-align: center; padding: 8px; border: 2px solid var(--border); border-radius: 8px; font-weight: 900; font-size: 16px; background: white; }
+
+        .output-console { width: 100%; height: 320px; background: #1E293B; color: #38BDF8; font-family: monospace; font-size: 13px; padding: 16px; border-radius: var(--r-md); border: none; margin-bottom: 16px; resize: vertical; line-height: 1.5; box-shadow: inset 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-action-outline { padding: 12px 16px; border: 2px solid var(--violet); border-radius: var(--r-sm); background: white; color: var(--violet-dark); font-weight: 900; cursor: pointer; font-size: 13px; width: 100%; text-transform: uppercase; transition: all 0.2s; }
+        .btn-action-outline:hover { background: var(--violet-pale); }
+        
+        .multi-qr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0; }
+        .multi-qr-tile { background: white; border: 2px solid var(--border); border-radius: var(--r-md); padding: 16px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 14px rgba(0,0,0,0.05); }
+
+        .bottom-action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.96); padding: 16px 24px; display: flex; gap: 16px; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.08); z-index: 100; backdrop-filter: blur(12px); border-top: 1px solid var(--border); }
+        .btn-nav-back { padding: 16px 28px; border-radius: var(--r-md); border: 2px solid var(--border); background: white; font-weight: 900; color: var(--text-mid); cursor: pointer; }
+        .btn-nav-next { flex: 1; padding: 16px; border-radius: var(--r-md); border: none; background: linear-gradient(135deg, var(--violet-mid), var(--violet-dark)); color: white; font-weight: 900; font-size: 17px; cursor: pointer; box-shadow: 0 6px 20px rgba(74, 0, 224, 0.2); }
+        .btn-nav-next:active { transform: scale(0.98); }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); z-index: 10000; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+        .halfway-card { background: white; border-radius: 24px; padding: 40px 24px; max-width: 420px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .analytics-card { background: white; border-radius: 24px; padding: 28px; max-width: 680px; width: 100%; max-height: 88vh; overflow-y: auto; text-align: left; }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+        .halfway-title { font-family: 'Quicksand', sans-serif; font-size: 28px; font-weight: 900; color: var(--violet-dark); margin-bottom: 12px; }
+        .halfway-btn { background: linear-gradient(135deg, var(--violet-mid), var(--violet-dark)); color: white; border: none; padding: 14px 32px; border-radius: 999px; font-size: 16px; font-weight: 900; cursor: pointer; margin-top: 16px; }
+
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .dash-stat { background: var(--violet-pale); border: 1.5px solid var(--violet-soft); border-radius: 16px; padding: 14px; text-align: center; }
+        .dash-stat-val { font-size: 22px; font-weight: 900; color: var(--violet-dark); font-family: 'Quicksand', sans-serif; }
+        .dash-stat-lbl { font-size: 11px; font-weight: 800; color: var(--text-mid); text-transform: uppercase; margin-top: 4px; }
+        .dash-section { background: #F8FAFC; border: 1.5px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+        .dash-sec-title { font-size: 13px; font-weight: 900; color: var(--violet-dark); text-transform: uppercase; margin-bottom: 12px; }
+        .bar-row { margin-bottom: 10px; }
+        .bar-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .bar-track { height: 10px; background: #E2E8F0; border-radius: 999px; overflow: hidden; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, var(--violet-mid), var(--violet-dark)); border-radius: 999px; }
+    </style>
+</head>
+<body>
+
+<datalist id="hospList">
+    <option value="Hospital Kajang"></option>
+    <option value="Hospital Serdang"></option>
+    <option value="Hospital Putrajaya"></option>
+    <option value="Hospital Kuala Lumpur (HKL)"></option>
+    <option value="Hospital Tengku Ampuan Rahimah (HTAR)"></option>
+    <option value="Hospital Canselor Tuanku Muhriz (HCTM/UKM)"></option>
+    <option value="Pusat Perubatan Universiti Malaya (PPUM)"></option>
+    <option value="Hospital Ampang"></option>
+    <option value="Hospital Selayang"></option>
+    <option value="Hospital Sungai Buloh"></option>
+    <option value="Hospital Shah Alam"></option>
+    <option value="Hospital Cyberjaya"></option>
+    <option value="Hospital Banting"></option>
+    <option value="Klinik Kesihatan (KK)"></option>
+    <option value="Klinik Swasta / GP"></option>
+</datalist>
+
+<div class="top-action-bar">
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="pill-btn" onclick="startTestMode()" id="btnTestMode">🛠️ Test Mode</button>
+        <button class="pill-btn" onclick="promptAnalyticsAuth()" id="btnAnalytics">📊 Analytics</button>
+        <button class="pill-btn" onclick="triggerCodeRed()" id="btnCodeRed" style="color:#DC2626; border-color:#FECACA; background:#FEF2F2;">🚨 Kecemasan</button>
+        <button class="pill-btn" onclick="exitToHome()" id="btnExitTop" style="display:none; color:#475569;">🚪 Keluar</button>
+    </div>
+    <button class="pill-btn" id="btnLangToggle" onclick="toggleLanguage()">🌐 English</button>
+</div>
+
+<div class="toast-msg" id="globalToast">Makluman</div>
+
+<div class="landing-wrap" id="landingWrap">
+    <div class="hero-badge" id="heroBadge">🩺 KLINIK GINEKOLOGI</div>
+    <h1 class="hero-title" id="heroTitle">Aplikasi GYCA</h1>
+    <p class="hero-subtitle" id="heroSub">Gynaecology Clerking App</p>
+
+    <div class="info-card">
+        <div class="info-title">💡 <span id="info1_t">Penting</span></div>
+        <div class="info-text" id="info1_d">Aplikasi GYCA mempercepatkan proses pesakit dilihat di klinik ginekologi.</div>
+    </div>
+    <div class="info-card">
+        <div class="info-title">🔒 <span id="info2_t">100% Rahsia (PDPA)</span></div>
+        <div class="info-text" id="info2_d">Data diubah menjadi kod QR yang dihantar terus ke rekod hospital anda. Tiada nama atau IC disimpan.</div>
+    </div>
+    <div class="info-card" style="border-color:#FECACA; background:rgba(254, 242, 242, 0.92);">
+        <div class="info-title" style="color:#DC2626;">🚨 <span id="info3_t">Butang Kecemasan (Kod Merah)</span></div>
+        <div class="info-text" id="info3_d" style="color:#7F1D1D;">Jika anda mengalami pendarahan terlalu banyak, pitam, atau sakit perut yang amat sangat semasa menunggu, tekan butang merah <strong>"🚨 Kecemasan"</strong> di bahagian atas untuk memanggil staf perubatan segera.</div>
+    </div>
+
+    <!-- Informed Consent -->
+    <label class="consent-box">
+        <input type="checkbox" id="researchConsent">
+        <div>
+            <div class="consent-text" id="consent_text">Data klinikal awanama (tanpa nama atau nombor kad pengenalan) mungkin akan disimpan dan diproses secara sulit untuk tujuan penambahbaikan perkhidmatan klinikal, statistik, dan penyelidikan perubatan.</div>
+            <div class="consent-agree" id="consent_agree">Saya faham dan setuju.</div>
+        </div>
+    </label>
+
+    <div class="lang-btns">
+        <button class="lang-btn lang-btn-en" onclick="handleStartClick('en')">
+            <strong>English</strong><span>Continue in English</span>
+        </button>
+        <button class="lang-btn lang-btn-ms" onclick="handleStartClick('ms')">
+            <strong>Bahasa Melayu</strong><span>Teruskan dalam BM</span>
+        </button>
+    </div>
+</div>
+
+<div class="app-container" id="appContainer">
+    <div class="step-header">
+        <div class="step-progress-text" id="stepProgressText">Langkah 1 / 13</div>
+        <div style="font-size:12px; font-weight:800; color:var(--text-mid);">GYCA Secure Form</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step-section" id="step1">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step1">Maklumat Peribadi</div>
+            <div class="field-group"><label id="l_name">Nama Penuh <span style="color:red">*</span></label><input type="text" id="pName"></div>
+            <div class="field-group"><label id="l_ic">No. Kad Pengenalan / Pasport <span style="color:red">*</span></label><input type="text" id="pIC"></div>
+            <div class="grid-2">
+                <div class="field-group"><label id="l_age">Umur</label><input type="number" id="pAge"></div>
+                <div class="field-group">
+                    <label id="l_race">Bangsa</label>
+                    <select id="pRace">
+                        <option value="">Sila Pilih...</option><option value="Melayu">Melayu</option><option value="Cina">Cina</option><option value="India">India</option><option value="Bumiputera">Bumiputera Sabah/Sarawak</option><option value="Bukan Warganegara">Bukan Warganegara</option><option value="Lain-lain">Lain-lain</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="field-group">
+                    <label id="l_rel">Agama</label>
+                    <select id="pRel">
+                        <option value="">Sila Pilih...</option><option value="Islam">Islam</option><option value="Buddha">Buddha</option><option value="Hindu">Hindu</option><option value="Kristian">Kristian</option><option value="Lain-lain">Lain-lain</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label id="l_marital">Status Perkahwinan</label>
+                    <select id="pMarital">
+                        <option value="">Sila Pilih...</option><option value="Berkahwin">Berkahwin</option><option value="Bujang">Bujang</option><option value="Bercerai">Bercerai</option><option value="Berpisah">Berpisah</option><option value="Balu">Balu</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-group">
+                <label id="l_edu">Tahap Pendidikan</label>
+                <select id="pEdu">
+                    <option value="">Sila Pilih...</option><option value="Sekolah Rendah">Sekolah Rendah</option><option value="Tidak Habis SPM">Tidak Habis SPM</option><option value="Habis SPM / STPM">Habis SPM / STPM</option><option value="Diploma">Diploma</option><option value="Ijazah (Degree)">Ijazah (Degree)</option><option value="Pascasiswazah (Master)">Pascasiswazah (Master)</option><option value="Pascasiswazah (PhD)">Pascasiswazah (PhD)</option><option value="Tiada Pendidikan Formal">Tiada Pendidikan Formal</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label id="l_occ">Pekerjaan</label>
+                <select id="pOcc">
+                    <option value="">Sila Pilih...</option><option value="Kerajaan">Kerajaan</option><option value="Swasta">Swasta</option><option value="Bekerja Sendiri">Bekerja Sendiri</option><option value="Suri Rumah">Suri Rumah</option><option value="Pelajar">Pelajar</option><option value="Pesara">Pesara</option><option value="Tidak Bekerja">Tidak Bekerja</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label id="l_state">Negeri Semasa (Untuk Rekod Statistik)</label>
+                <select id="pState">
+                    <option value="">Sila Pilih...</option>
+                    <option value="Selangor">Selangor</option>
+                    <option value="WP Kuala Lumpur">WP Kuala Lumpur</option>
+                    <option value="WP Putrajaya">WP Putrajaya</option>
+                    <option value="Negeri Sembilan">Negeri Sembilan</option>
+                    <option value="Johor">Johor</option>
+                    <option value="Melaka">Melaka</option>
+                    <option value="Perak">Perak</option>
+                    <option value="Pahang">Pahang</option>
+                    <option value="Pulau Pinang">Pulau Pinang</option>
+                    <option value="Kedah">Kedah</option>
+                    <option value="Perlis">Perlis</option>
+                    <option value="Kelantan">Kelantan</option>
+                    <option value="Terengganu">Terengganu</option>
+                    <option value="Sabah">Sabah</option>
+                    <option value="Sarawak">Sarawak</option>
+                    <option value="WP Labuan">WP Labuan</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-section" id="step2" style="display:none;">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step2">Sejarah Kehamilan</div>
+            <div style="text-align:center; margin-bottom:20px;"><span class="pill-btn" id="lblParityBadge" style="background:var(--violet-soft); pointer-events:none; font-size:16px;">Para 0 + 0</span></div>
+            <div class="grid-2" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+                <div><label style="text-align:center; display:block; margin-bottom:6px;" id="l_del">Bersalin</label><div class="counter-controls"><button onclick="chgCount('pDel',-1)">-</button><input id="pDel" value="0" readonly><button onclick="chgCount('pDel',1)">+</button></div></div>
+                <div><label style="text-align:center; display:block; margin-bottom:6px;" id="l_misc">Keguguran</label><div class="counter-controls"><button onclick="chgCount('pMisc',-1)">-</button><input id="pMisc" value="0" readonly><button onclick="chgCount('pMisc',1)">+</button></div></div>
+                <div><label style="text-align:center; display:block; margin-bottom:6px;" id="l_ect">Luar Rahim</label><div class="counter-controls"><button onclick="chgCount('pEct',-1)">-</button><input id="pEct" value="0" readonly><button onclick="chgCount('pEct',1)">+</button></div></div>
+            </div>
+            <div id="divLcbYear" class="field-group" style="display:none; margin-top:20px;">
+                <label id="l_lcb">Tahun Kelahiran Anak Terakhir (Last Childbirth)</label>
+                <input type="number" id="pLcbYear" placeholder="Cth: 2024" class="ph_yr">
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-section" id="step3" style="display:none;">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step3">Sejarah Haid</div>
+            <div class="field-group"><label id="l_menarche">Umur Mula Datang Haid</label><input type="text" id="pMenarche" placeholder="Cth: 12" class="ph_eg12"></div>
+            <div class="field-group">
+                <label id="l_meno">Telah Putus Haid (Menopos)?</label>
+                <select id="pMeno" onchange="toggleEl('divMenoYr', this.value==='Ya'); toggleEl('divActiveMenses', this.value!=='Ya')">
+                    <option value="Tidak">Tidak</option><option value="Ya">Ya</option>
+                </select>
+            </div>
+            <div id="divMenoYr" style="display:none;" class="field-group"><label id="l_menoyr">Umur Berapa Menopos?</label><input type="number" id="pMenoYr" placeholder="Cth: 50" class="ph_eg50"></div>
+            <div id="divActiveMenses">
+                <div class="field-group"><label id="l_lmp">Tarikh Hari Pertama Haid Terakhir (LMP)</label><input type="date" id="pLMP"></div>
+                <div class="grid-2">
+                    <div class="field-group"><label id="l_cycle">Kitaran Haid</label><select id="pCycleReg"><option value="">Sila Pilih...</option><option value="Teratur">Teratur</option><option value="Tidak Teratur">Tidak Teratur</option></select></div>
+                    <div class="field-group"><label id="l_durp">Tempoh Pendarahan</label><select id="pPeriodDur"><option value="">Sila Pilih...</option><option value="3-6 hari">3-6 hari</option><option value="7-10 hari">7-10 hari</option><option value="10-15 hari">10-15 hari</option><option value="Lebih 15 hari">> 15 hari</option></select></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-section" id="step4" style="display:none;">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step4">Rujukan & Fasiliti</div>
+            <div class="field-group">
+                <label id="l_refType">Jenis Kedatangan</label>
+                <select id="pRefType" onchange="toggleEl('divRefSource', this.value==='Dirujuk dengan Surat')">
+                    <option value="Dirujuk dengan Surat">Dirujuk dengan Surat</option>
+                    <option value="Walk-in / Sendiri">Walk-in / Sendiri</option>
+                </select>
+            </div>
+            <div id="divRefSource" class="field-group"><label id="l_refSrc">Rujukan Dari Mana?</label><input type="text" id="pRefSource" list="hospList" placeholder="Taip nama klinik / hospital" class="ph_hosp"></div>
+            <div class="grid-2">
+                <div class="field-group"><label id="l_ht">Tinggi (cm)</label><input type="number" id="pHt" oninput="calcBMIOnFly()"></div>
+                <div class="field-group"><label id="l_wt">Berat (kg)</label><input type="number" id="pWt" oninput="calcBMIOnFly()"></div>
+            </div>
+            <div id="bmiDisplay" style="text-align:center; margin-top:10px; font-size:15px; font-weight:900; color:var(--violet-dark); background:var(--violet-pale); padding:10px; border-radius:12px; border:1px solid var(--violet-soft); display:none;"></div>
+        </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-section" id="step5" style="display:none;">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step5">Masalah / Simptom Utama</div>
+            
+            <div id="topActiveBox" class="top-active-box">
+                <div class="top-active-header">
+                    <span class="top-active-title" id="topActiveTitle">Maklumat Tambahan</span>
+                    <button class="btn-close-box" onclick="closeTopBox()" id="b_closeBox">Selesai & Tutup</button>
+                </div>
+                <div id="boxContent"></div>
+            </div>
+            
+            <div style="background:#F1F5F9; border-radius:12px; padding:12px; margin-bottom:16px; text-align:center; font-size:12px; font-weight:800; color:#475569;" id="l_sympInstr">
+                👇 SILA TANDAKAN SIMPTOM YANG DIALAMI 👇<br><span style="font-weight:600; font-size:11px;">(Jika kotak soalan tertutup, nyahtanda dan tanda semula)</span>
+            </div>
+
+            <div class="grid-2" id="symptomGrid"></div>
+        </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-section" id="step6" style="display:none;">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step6">Pap Smear, HPV & Perancang</div>
+            <div class="field-group">
+                <label id="l_contraCurr">Kaedah Perancang Terkini</label>
+                <select id="pContraCurr">
+                    <option value="Tiada">Tiada</option><option value="Pil Perancang">Pil Perancang</option><option value="Suntikan (Depo)">Suntikan (Depo)</option><option value="Implan (Susuk)">Implan (Susuk)</option><option value="IUCD">IUCD</option><option value="Kondom">Kondom</option><option value="Ikat Tiub (BTL)">Ikat Tiub (BTL)</option>
+                </select>
+            </div>
+            
+            <div style="font-size:13px; font-weight:800; margin:24px 0 12px;" id="l_contraPast">KAEDAH PERANCANG LAMPAU (PERNAH DIGUNA)</div>
+            <label class="check-pill" style="border-color:#10B981; background:#ECFDF5; margin-bottom:12px;"><input type="checkbox" id="cbPastContraNone"><span id="l_pastNone">Tiada perancang lampau</span></label>
+            <div class="grid-2" id="grpPastContra" style="margin-bottom:24px;">
+                <label class="check-pill"><input type="checkbox" class="cb-past-c" value="Pil Perancang"><span id="t_cpil">Pil Perancang</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-past-c" value="Suntikan (Depo)"><span id="t_cdep">Suntikan (Depo)</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-past-c" value="Implan (Susuk)"><span id="t_cimp">Implan (Susuk)</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-past-c" value="IUCD"><span>IUCD</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-past-c" value="Kondom"><span id="t_ccon">Kondom</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-past-c" value="Ikat Tiub (BTL)"><span id="t_cbtl">Ikat Tiub (BTL)</span></label>
+            </div>
+
+            <hr style="border:0; border-top:2px dashed var(--border); margin:24px 0;">
+
+            <div style="font-size:13px; font-weight:800; margin-bottom:12px;" id="l_pap">BILA TERAKHIR BUAT PAP SMEAR?</div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+                <label class="check-pill"><input type="radio" name="rPap" value="Dalam setahun yang lepas" onchange="toggleEl('divPapDet',true)"><span id="t_p1">Dalam setahun yang lepas</span></label>
+                <label class="check-pill"><input type="radio" name="rPap" value="Antara 1-3 tahun" onchange="toggleEl('divPapDet',true)"><span id="t_p2">Antara 1-3 tahun</span></label>
+                <label class="check-pill"><input type="radio" name="rPap" value="> 3 tahun lepas" onchange="toggleEl('divPapDet',true)"><span id="t_p3">> 3 tahun lepas</span></label>
+                <label class="check-pill"><input type="radio" name="rPap" value="Tidak pernah buat" onchange="toggleEl('divPapDet',false)"><span id="t_p4">Tidak pernah buat</span></label>
+            </div>
+            <div id="divPapDet" class="sub-box" style="margin-bottom:24px;">
+                <label id="l_papRes" style="font-size:12px; font-weight:900;">KEPUTUSAN:</label>
+                <div class="grid-2" style="margin-bottom:12px;">
+                    <label class="check-pill"><input type="radio" name="rPapRes" value="Normal"><span class="t_norm">Normal</span></label>
+                    <label class="check-pill"><input type="radio" name="rPapRes" value="Tidak normal"><span class="t_abnorm">Tidak normal</span></label>
+                    <label class="check-pill"><input type="radio" name="rPapRes" value="Tidak pasti"><span class="t_unsure">Tidak pasti</span></label>
+                </div>
+                <label id="l_papLoc" style="font-size:12px; font-weight:900;">BUAT DI MANA?</label>
+                <select id="pPapLoc" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; font-family:var(--font);">
+                    <option value="">Sila Pilih...</option>
+                    <option value="Klinik Kesihatan (KK)">Klinik Kesihatan (KK)</option>
+                    <option value="Hospital Kerajaan">Hospital Kerajaan</option>
+                    <option value="Klinik Swasta / GP">Klinik Swasta / GP</option>
+                    <option value="Hospital / Klinik Pakar Swasta">Hospital / Klinik Pakar Swasta</option>
+                    <option value="LPPKN">LPPKN</option>
+                    <option value="Lain-lain">Lain-lain</option>
+                </select>
+            </div>
+
+            <div style="font-size:13px; font-weight:800; margin-bottom:12px;" id="l_hpv">UJIAN HPV DNA:</div>
+            <div class="grid-2" style="margin-bottom:16px;">
+                <label class="check-pill"><input type="radio" name="rHpv" value="Ya" onchange="toggleEl('divHpvDet',true)"><span id="t_hyes">Pernah buat (Ya)</span></label>
+                <label class="check-pill"><input type="radio" name="rHpv" value="Tidak" onchange="toggleEl('divHpvDet',false)"><span id="t_hno">Tidak pernah buat</span></label>
+            </div>
+            <div id="divHpvDet" class="sub-box">
+                <div class="grid-2" style="margin-bottom:12px;">
+                    <div><label id="l_hpvYr" style="font-size:12px; font-weight:900;">TAHUN:</label><input type="text" id="pHpvYr" placeholder="Cth: 2024" class="ph_yr" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;"></div>
+                    <div><label id="l_hpvLoc" style="font-size:12px; font-weight:900;">LOKASI:</label><input type="text" id="pHpvLoc" list="hospList" placeholder="Klinik Kesihatan" class="ph_loc" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;"></div>
+                </div>
+                <label id="l_hpvRes" style="font-size:12px; font-weight:900;">KEPUTUSAN:</label>
+                <div class="grid-2">
+                    <label class="check-pill"><input type="radio" name="rHpvRes" value="Normal (Negatif)"><span class="t_normneg">Normal (Negatif)</span></label>
+                    <label class="check-pill"><input type="radio" name="rHpvRes" value="Tidak Normal (Positif)"><span class="t_abnormpos">Tidak normal (Positif)</span></label>
+                    <label class="check-pill"><input type="radio" name="rHpvRes" value="Tidak pasti"><span class="t_unsure">Tidak pasti</span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step-section" id="step7" style="display:none;"><div class="step-card"><div class="step-card-title" id="t_step7">Sejarah Sakit Puan</div>
+        <label class="check-pill" style="border-color:#10B981; background:#ECFDF5; margin-bottom:12px;"><input type="checkbox" id="cbNoGyn"><span id="l_noGyn">Tiada penyakit sakit puan</span></label>
+        <div id="wrapGyn"></div>
+        <div style="margin-top:12px;">
+            <label class="check-pill"><input type="checkbox" id="cbGynOther" onchange="toggleEl('subGynOther',this.checked)"><span id="t_gynOther">Lain-lain</span></label>
+            <div id="subGynOther" class="sub-box">
+                <div class="field-group" style="margin-bottom:0;"><label id="l_gynOthSpec">Nyatakan Masalah Sakit Puan Lain</label><input type="text" id="pGynOtherTxt" placeholder="Taip di sini..." class="ph_type_here"></div>
+            </div>
+        </div>
+    </div></div>
+    
+    <!-- STEP 8 -->
+    <div class="step-section" id="step8" style="display:none;">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step8">Sejarah Kehamilan (Anak)</div>
+            <div id="obsNoBirthMsg" style="text-align:center; padding:16px; background:#F8FAFC; border-radius:12px; font-weight:800; color:var(--text-mid); display:none;" id="l_obsNoDel">Tiada sejarah bersalin direkodkan pada Langkah 2.</div>
+            <div id="obsDetailsWrap">
+                <div class="grid-2" style="margin-bottom:16px;">
+                    <div class="field-group" style="margin-bottom:0;">
+                        <label id="l_obsBoys">Bilangan Anak Lelaki (Boys)</label>
+                        <select id="pObsBoys">
+                            <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                        </select>
+                    </div>
+                    <div class="field-group" style="margin-bottom:0;">
+                        <label id="l_obsGirls">Bilangan Anak Perempuan (Girls)</label>
+                        <select id="pObsGirls">
+                            <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label id="l_allNorm">Semua bersalin normal (Vaginal delivery)?</label>
+                    <div class="grid-2">
+                        <label class="check-pill"><input type="radio" name="rAllNorm" value="Ya" onchange="toggleEl('divLscsCnt',false)"><span class="t_yes">Ya</span></label>
+                        <label class="check-pill"><input type="radio" name="rAllNorm" value="Tidak" onchange="toggleEl('divLscsCnt',true)"><span class="t_no">Tidak</span></label>
+                    </div>
+                </div>
+
+                <div id="divLscsCnt" class="sub-box" style="margin-bottom:20px;">
+                    <div class="field-group" style="margin-bottom:0;">
+                        <label id="l_howManyLscs">Berapa kali pembedahan LSCS?</label>
+                        <select id="pLscsCount">
+                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label id="l_obsComp">Ada sebarang komplikasi semasa hamil / bersalin?</label>
+                    <div class="grid-2">
+                        <label class="check-pill"><input type="radio" name="rObsComp" value="Tidak" onchange="toggleEl('divObsCompTxt',false)"><span class="t_no">Tidak</span></label>
+                        <label class="check-pill"><input type="radio" name="rObsComp" value="Ya" onchange="toggleEl('divObsCompTxt',true)"><span class="t_yes">Ya</span></label>
+                    </div>
+                </div>
+
+                <div id="divObsCompTxt" class="sub-box">
+                    <div class="field-group" style="margin-bottom:0;">
+                        <label id="l_obsCompDet">Nyatakan Komplikasi</label>
+                        <input type="text" id="pObsCompTxt" placeholder="Cth: Pendarahan banyak, darah tinggi..." class="ph_comp">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="step-section" id="step9" style="display:none;"><div class="step-card"><div class="step-card-title" id="t_step9">Sejarah Perubatan</div>
+        <label class="check-pill" style="border-color:#10B981; background:#ECFDF5; margin-bottom:12px;"><input type="checkbox" id="cbNoMed"><span id="l_noMed">Tiada penyakit perubatan</span></label>
+        <div id="wrapMed"></div>
+        <div style="margin-top:12px;">
+            <label class="check-pill"><input type="checkbox" id="cbMedOther" onchange="toggleEl('subMedOther',this.checked)"><span id="t_medOther">Lain-lain</span></label>
+            <div id="subMedOther" class="sub-box">
+                <div class="field-group" style="margin-bottom:0;"><label id="l_medOthSpec">Nyatakan Penyakit Lain</label><input type="text" id="pMedOtherTxt" placeholder="Taip di sini..." class="ph_type_here"></div>
+            </div>
+        </div>
+    </div></div>
+    
+    <!-- STEP 10 -->
+    <div class="step-section" id="step10" style="display:none;"><div class="step-card"><div class="step-card-title" id="t_step10">Sejarah Pembedahan</div>
+        <label class="check-pill" style="border-color:#10B981; background:#ECFDF5; margin-bottom:12px;"><input type="checkbox" id="cbNoSurg"><span id="l_noSurg">Tiada pembedahan dahulu</span></label>
+        <div id="wrapSurg"></div>
+    </div></div>
+
+    <!-- STEP 11 -->
+    <div class="step-section" id="step11" style="display:none;">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step11">Alahan & Ubat-ubatan</div>
+            
+            <div style="font-size:13px; font-weight:800; margin-bottom:12px;" id="l_allFood">ALAHAN MAKANAN</div>
+            <label class="check-pill" style="border-color:#10B981; background:#ECFDF5; margin-bottom:12px;"><input type="checkbox" id="cbNoFood" onchange="toggleEl('divFood',!this.checked)"><span id="l_noFood">Saya tiada alahan makanan</span></label>
+            <div id="divFood" style="margin-bottom:24px;">
+                <div class="grid-2" style="margin-bottom:12px;">
+                    <label class="check-pill"><input type="checkbox" class="cb-food" value="Seafood"><span id="tf_sf">Makanan Laut</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-food" value="Peanuts"><span id="tf_pn">Kacang Tanah</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-food" value="Eggs"><span id="tf_eg">Telur</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-food" value="Dairy"><span id="tf_dy">Tenusu</span></label>
+                </div>
+                <input type="text" id="pFoodOther" placeholder="Lain-lain makanan..." class="ph_foth" style="width:100%; padding:12px; border:2px solid var(--border); border-radius:8px; margin-bottom:12px;">
+                <label style="font-size:12px; font-weight:900; display:block; margin-bottom:8px;" id="l_allSymp1">SIMPTOM ALAHAN MAKANAN:</label>
+                <div class="grid-2" style="margin-bottom:10px;">
+                    <label class="check-pill"><input type="checkbox" class="cb-fsymp" value="Eye swelling"><span class="ts_eye">Bengkak mata</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-fsymp" value="Facial swelling"><span class="ts_face">Bengkak muka</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-fsymp" value="Rash"><span class="ts_rash">Ruam</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-fsymp" value="Itchiness"><span class="ts_itch">Gatal-gatal</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-fsymp" value="ICU admission"><span class="ts_icu">Masuk ICU</span></label>
+                </div>
+                <input type="text" id="pFoodSymp" placeholder="Lain-lain simptom..." class="ph_fsymp" style="width:100%; padding:12px; border:2px solid var(--border); border-radius:8px;">
+            </div>
+
+            <div style="font-size:13px; font-weight:800; margin-bottom:12px;" id="l_allDrug">ALAHAN UBAT</div>
+            <label class="check-pill" style="border-color:#10B981; background:#ECFDF5; margin-bottom:12px;"><input type="checkbox" id="cbNoDrug" onchange="toggleEl('divDrug',!this.checked)"><span id="l_noDrug">Saya tiada alahan ubat</span></label>
+            <div id="divDrug" style="margin-bottom:24px;">
+                <div class="grid-2" style="margin-bottom:12px;">
+                    <label class="check-pill"><input type="checkbox" class="cb-drug" value="Antibiotics"><span id="td_ab">Antibiotik</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-drug" value="Penicillin"><span>Penicillin</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-drug" value="NSAID (Pain killer)"><span id="td_ns">NSAID (Ubat tahan sakit)</span></label>
+                </div>
+                <input type="text" id="pDrugOther" placeholder="Lain-lain ubat..." class="ph_doth" style="width:100%; padding:12px; border:2px solid var(--border); border-radius:8px; margin-bottom:12px;">
+                <label style="font-size:12px; font-weight:900; display:block; margin-bottom:8px;" id="l_allSymp2">SIMPTOM ALAHAN UBAT:</label>
+                <div class="grid-2" style="margin-bottom:10px;">
+                    <label class="check-pill"><input type="checkbox" class="cb-dsymp" value="Eye swelling"><span class="ts_eye">Bengkak mata</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-dsymp" value="Facial swelling"><span class="ts_face">Bengkak muka</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-dsymp" value="Rash"><span class="ts_rash">Ruam</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-dsymp" value="Itchiness"><span class="ts_itch">Gatal-gatal</span></label>
+                    <label class="check-pill"><input type="checkbox" class="cb-dsymp" value="ICU admission"><span class="ts_icu">Masuk ICU</span></label>
+                </div>
+                <input type="text" id="pDrugSymp" placeholder="Lain-lain simptom..." class="ph_dsymp" style="width:100%; padding:12px; border:2px solid var(--border); border-radius:8px;">
+            </div>
+
+            <hr style="border:0; border-top:2px dashed var(--border); margin:24px 0;">
+            <div class="field-group"><label id="l_medsCurr">Senarai Ubat Terkini (Meds)</label><textarea id="pMedsCurr" rows="3" placeholder="Tulis 'Tiada' jika tidak berkenaan..." class="ph_med"></textarea></div>
+        </div>
+    </div>
+
+    <!-- STEP 12 -->
+    <div class="step-section" id="step12" style="display:none;">
+        <div class="step-card">
+            <div class="step-card-title" id="t_step12">Gaya Hidup & Keluarga</div>
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="field-group"><label id="l_smk">Merokok</label><select id="pSmk"><option value="Tidak">Tidak</option><option value="Ya">Ya</option><option value="Telah Berhenti">Telah Berhenti</option></select></div>
+                <div class="field-group"><label id="l_vap">Vape</label><select id="pVap"><option value="Tidak">Tidak</option><option value="Ya">Ya</option><option value="Telah Berhenti">Telah Berhenti</option></select></div>
+                <div class="field-group"><label id="l_alc">Alkohol</label><select id="pAlc"><option value="Tidak">Tidak</option><option value="Ya">Ya</option><option value="Telah Berhenti">Telah Berhenti</option></select></div>
+                <div class="field-group"><label id="l_ill">Dadah Terlarang</label><select id="pIll"><option value="Tidak">Tidak</option><option value="Ya">Ya</option><option value="Telah Berhenti">Telah Berhenti</option></select></div>
+            </div>
+            
+            <div style="font-size:13px; font-weight:800; margin-bottom:12px;" id="l_fam">SEJARAH KELUARGA</div>
+            <div class="grid-2">
+                <label class="check-pill"><input type="checkbox" class="cb-fam" value="Hypertension"><span id="tc_ht">Darah Tinggi</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-fam" value="Diabetes"><span id="tc_dm">Kencing Manis</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-fam" value="Heart Disease"><span id="tc_hd">Sakit Jantung</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-fam" value="Stroke"><span id="tc_st">Angin Ahmar (Stroke)</span></label>
+                <label class="check-pill"><input type="checkbox" class="cb-fam" value="High Cholesterol"><span id="tc_hc">Kolesterol Tinggi</span></label>
+                <label class="check-pill"><input type="checkbox" id="cbFamCa" value="Cancer" onchange="toggleEl('divFamCa',this.checked)"><span id="tc_ca">Kanser</span></label>
+            </div>
+            <div id="divFamCa" class="sub-box">
+                <label style="font-size:12px; font-weight:900; margin-bottom:8px; display:block;" id="l_famCaType">JENIS KANSER:</label>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div>
+                        <label class="check-pill"><input type="checkbox" class="cb-fam-ca" value="Breast" onchange="toggleEl('caRel_br',this.checked)"><span id="tca_br">Payudara</span></label>
+                        <div id="caRel_br" class="sub-box"><label class="tl_rel" style="font-size:11px; font-weight:900;">Nyatakan hubungan?</label><input type="text" id="pCaRel_br" placeholder="Cth: Ibu, Kakak..." class="ph_rel" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-top:4px;"></div>
+                    </div>
+                    <div>
+                        <label class="check-pill"><input type="checkbox" class="cb-fam-ca" value="Cervical" onchange="toggleEl('caRel_cx',this.checked)"><span id="tca_cx">Serviks</span></label>
+                        <div id="caRel_cx" class="sub-box"><label class="tl_rel" style="font-size:11px; font-weight:900;">Nyatakan hubungan?</label><input type="text" id="pCaRel_cx" placeholder="Cth: Ibu, Kakak..." class="ph_rel" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-top:4px;"></div>
+                    </div>
+                    <div>
+                        <label class="check-pill"><input type="checkbox" class="cb-fam-ca" value="Ovarian" onchange="toggleEl('caRel_ov',this.checked)"><span id="tca_ov">Ovari</span></label>
+                        <div id="caRel_ov" class="sub-box"><label class="tl_rel" style="font-size:11px; font-weight:900;">Nyatakan hubungan?</label><input type="text" id="pCaRel_ov" placeholder="Cth: Ibu, Kakak..." class="ph_rel" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-top:4px;"></div>
+                    </div>
+                    <div>
+                        <label class="check-pill"><input type="checkbox" class="cb-fam-ca" value="Endometrial Cancer (Womb)" onchange="toggleEl('caRel_en',this.checked)"><span id="tca_en">Kanser Rahim</span></label>
+                        <div id="caRel_en" class="sub-box"><label class="tl_rel" style="font-size:11px; font-weight:900;">Nyatakan hubungan?</label><input type="text" id="pCaRel_en" placeholder="Cth: Ibu, Kakak..." class="ph_rel" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-top:4px;"></div>
+                    </div>
+                    <div>
+                        <label class="check-pill"><input type="checkbox" class="cb-fam-ca" value="Colorectal" onchange="toggleEl('caRel_co',this.checked)"><span id="tca_co">Usus (Kolorektal)</span></label>
+                        <div id="caRel_co" class="sub-box"><label class="tl_rel" style="font-size:11px; font-weight:900;">Nyatakan hubungan?</label><input type="text" id="pCaRel_co" placeholder="Cth: Bapa, Abang..." class="ph_rel" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-top:4px;"></div>
+                    </div>
+                    <div>
+                        <label class="check-pill"><input type="checkbox" class="cb-fam-ca" value="Lung" onchange="toggleEl('caRel_lu',this.checked)"><span id="tca_lu">Paru-paru</span></label>
+                        <div id="caRel_lu" class="sub-box"><label class="tl_rel" style="font-size:11px; font-weight:900;">Nyatakan hubungan?</label><input type="text" id="pCaRel_lu" placeholder="Cth: Bapa, Datuk..." class="ph_rel" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-top:4px;"></div>
+                    </div>
+                    <div>
+                        <label class="check-pill"><input type="checkbox" class="cb-fam-ca" value="Others" onchange="toggleEl('caRel_ot',this.checked)"><span id="tca_ot">Lain-lain</span></label>
+                        <div id="caRel_ot" class="sub-box">
+                            <label class="tl_ca_spec" style="font-size:11px; font-weight:900;">Nyatakan Jenis Kanser</label>
+                            <input type="text" id="pCaOtherSpec" placeholder="Taip jenis kanser..." class="ph_type_here" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin:4px 0 8px;">
+                            <label class="tl_rel" style="font-size:11px; font-weight:900;">Nyatakan hubungan?</label>
+                            <input type="text" id="pCaRel_ot" placeholder="Cth: Ibu saudara..." class="ph_rel" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-top:4px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 13 -->
+    <div class="step-section" id="step13" style="display:none;">
+        <div class="step-card" style="text-align:center;">
+            <div class="step-card-title" id="t_step13">Selesai! 🎉</div>
+            <div id="timeTakenBadge" style="display:inline-block; background:var(--violet-pale); color:var(--violet-dark); border:1.5px solid var(--violet-soft); padding:6px 14px; border-radius:999px; font-size:13px; font-weight:800; margin-bottom:14px;">⏱️ Masa diambil: 0 saat</div>
+            <p style="font-size:15px; font-weight:700; color:var(--text-mid); margin-bottom:20px;" id="l_doneMsg">Nota klinikal dan kod QR anda sedia untuk digunakan. Sila tunjukkan skrin ini kepada doktor.</p>
+            
+            <textarea id="finalOutputText" class="output-console" readonly></textarea>
+            
+            <div class="grid-2" style="margin-bottom:24px;">
+                <button class="btn-action-outline" onclick="copyText()" id="b_copy">Salin Teks (Copy)</button>
+                <button class="btn-action-outline" onclick="downloadText()" id="b_saveTxt">Simpan Teks (.txt)</button>
+            </div>
+
+            <div style="display:inline-flex; background:#EDE9FE; padding:6px; border-radius:16px; margin-bottom:16px;">
+                <button id="btnTab1QR" onclick="switchQR('single')" style="padding:10px 20px; border-radius:12px; border:none; background:var(--violet); color:white; font-weight:800; cursor:pointer;">⚡ 1 SCAN QR</button>
+                <button id="btnTab5QR" onclick="switchQR('multi')" style="padding:10px 20px; border-radius:12px; border:none; background:transparent; color:var(--violet-dark); font-weight:800; cursor:pointer;">📑 5 SCAN QR (SERENTAK)</button>
+            </div>
+
+            <div id="singleQRWrap" style="display:flex; flex-direction:column; align-items:center;">
+                <canvas id="qrCanvas1" style="width:260px; height:260px; background:white; padding:10px; border-radius:16px; border:2px solid var(--border); box-shadow:0 4px 14px rgba(0,0,0,0.05);"></canvas>
+                <button class="btn-action-outline" id="btnSaveQR1" style="margin-top:16px; max-width:260px;" onclick="downloadImage('qrCanvas1', 'GYCA_QR.png')">Simpan QR Image</button>
+            </div>
+
+            <div id="multiQRWrap" style="display:none; width:100%;"><div class="multi-qr-grid" id="multiQRGrid"></div></div>
+
+            <div style="margin-top:28px; padding-top:20px; border-top:2px dashed var(--border);">
+                <button onclick="finishAndReset()" id="b_finishExit" style="width:100%; padding:16px; border-radius:16px; border:none; background:#10B981; color:white; font-weight:900; font-size:16px; cursor:pointer; box-shadow:0 8px 20px rgba(16,185,129,0.25);">✅ Selesai & Keluar (Pesakit Seterusnya)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-action-bar" id="bottomNavBar" style="display:none;">
+    <button class="btn-nav-back" onclick="navStep(-1)" id="b_back">Kembali</button>
+    <button class="btn-nav-next" id="btnNavNext" onclick="navStep(1)">Seterusnya</button>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="halfwayModal">
+    <div class="halfway-card">
+        <div style="font-size: 60px; margin-bottom: 16px;">🎉</div>
+        <div class="halfway-title" id="t_half1">Tahniah!</div>
+        <div style="font-size:16px; font-weight:700; color:var(--text-mid);" id="t_half2">Anda sudah berjaya melengkapkan separuh daripada borang ini. Teruskan usaha!</div>
+        <button class="halfway-btn" onclick="document.getElementById('halfwayModal').style.display='none'" id="b_half3">Teruskan</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="resumeModal">
+    <div class="halfway-card">
+        <div style="font-size: 54px; margin-bottom: 12px;">📋</div>
+        <div class="halfway-title" id="t_res1">Borang Belum Selesai</div>
+        <div style="font-size:15px; font-weight:700; color:var(--text-mid); margin-bottom:20px;" id="t_res2">Anda mempunyai borang yang belum selesai sebelum ini. Adakah anda ingin menyambung dari tempat terakhir atau mula dari awal?</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <button class="halfway-btn" style="margin-top:0; width:100%;" onclick="chooseResume(true)" id="b_resCont">▶️ Sambung Dari Tempat Terakhir</button>
+            <button class="btn-action-outline" style="padding:14px; border-radius:999px;" onclick="chooseResume(false)" id="b_resNew">🔄 Mula Dari Awal (Kosongkan)</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="analyticsAuthModal">
+    <div class="halfway-card">
+        <div style="font-size: 50px; margin-bottom: 12px;">🔐</div>
+        <div class="halfway-title">Akses Staf / Penyelidik</div>
+        <div style="font-size:14px; font-weight:700; color:var(--text-mid); margin-bottom:16px;">Sila masukkan kata laluan untuk melihat papan pemuka Analitik.</div>
+        <input type="password" id="analyticsPwdInput" placeholder="Kata laluan..." onkeydown="if(event.key==='Enter') verifyAnalyticsPwd()" style="width:100%; padding:14px; border:2px solid var(--border); border-radius:12px; font-size:16px; font-weight:800; text-align:center; margin-bottom:12px;">
+        <div style="display:flex; gap:10px;">
+            <button class="btn-action-outline" onclick="document.getElementById('analyticsAuthModal').style.display='none'">Batal</button>
+            <button class="halfway-btn" style="margin-top:0; flex:1;" onclick="verifyAnalyticsPwd()">Masuk</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="analyticsModal">
+    <div class="analytics-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+            <h2 style="font-family:'Quicksand'; font-weight:900; color:var(--violet-dark);">📊 Audit & Research Analytics</h2>
+            <div style="display:flex; gap:8px;">
+                <button class="pill-btn" onclick="exportAnalyticsCSV()" style="background:#ECFDF5; color:#059669; border-color:#A7F3D0;">📥 Muat Turun CSV (Excel)</button>
+                <button class="pill-btn" onclick="resetAnalyticsLogs()" style="background:#FEF2F2; color:#DC2626; border-color:#FECACA;">🗑️ Reset Logs</button>
+                <button onclick="document.getElementById('analyticsModal').style.display='none'" style="background:none; border:none; font-size:22px; cursor:pointer; padding:0 6px;">✖</button>
+            </div>
+        </div>
+        <p style="font-size:12px; font-weight:700; color:var(--text-mid); margin-bottom:16px;" id="l_analyMsg">* Data awanama untuk tujuan kajian dan audit klinikal (Tiada Nama & IC disimpan).</p>
+        <div id="analyticsDashboardBody"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="codeRedModal" style="z-index: 20000; background: rgba(239, 68, 68, 0.95);">
+    <div class="halfway-card" style="box-shadow: 0 0 50px rgba(220, 38, 38, 0.5);">
+        <div style="font-size: 80px; margin-bottom: 16px;">🚨</div>
+        <div class="halfway-title" id="t_cr1" style="color: #DC2626;">KOD MERAH DIAKTIFKAN</div>
+        <div style="font-size:16px; font-weight:700; color:#475569; margin-bottom:24px;" id="t_cr2">Sila bertenang. Penggera kecemasan telah dibunyikan.<br>Kakitangan perubatan sedang menuju ke arah anda.</div>
+        <button class="halfway-btn" onclick="stopCodeRed()" id="b_cr3" style="background: #1E293B; width: 100%;">HENTIKAN PENGGERA</button>
+    </div>
+</div>
+
+<script>
+    let currStep = 1;
+    const totalSteps = 13;
+    let isEnglish = false;
+    let audioCtx;
+    let codeRedInterval;
+    let lastEnteredFacility = '';
+    let hasInProgressDraft = false;
+    let pendingStartLang = 'ms';
+    let formStartTime = null;
+    let accumulatedSeconds = 0;
+
+    const dummyAnalyticsRecords = [
+        { date: "2026-11-10", age: 34, state: "Selangor", race: "Melayu", marital: "Berkahwin", bmiCat: "Overweight", complaints: ["Heavy bleeding / Clots", "Severe dysmenorrhoea"], medHx: ["Nil"], gynHx: ["Fibroid"], famHx: ["Hypertension", "Diabetes"], durationSec: 215 },
+        { date: "2026-11-11", age: 28, state: "WP Kuala Lumpur", race: "Cina", marital: "Bujang", bmiCat: "Normal", complaints: ["Abnormal vaginal discharge"], medHx: ["Nil"], gynHx: ["PCOS"], famHx: ["Diabetes"], durationSec: 180 },
+        { date: "2026-11-11", age: 47, state: "Selangor", race: "India", marital: "Berkahwin", bmiCat: "Obese", complaints: ["Heavy bleeding / Clots", "Lethargy / easily fatigued"], medHx: ["Hypertension", "Diabetes"], gynHx: ["Fibroid"], famHx: ["Heart Disease"], durationSec: 260 },
+        { date: "2026-11-12", age: 56, state: "Negeri Sembilan", race: "Melayu", marital: "Berkahwin", bmiCat: "Overweight", complaints: ["Postmenopausal bleeding (PMB)"], medHx: ["Hypertension"], gynHx: ["Nil"], famHx: ["Cancer (Breast)"], durationSec: 240 },
+        { date: "2026-11-13", age: 31, state: "Selangor", race: "Melayu", marital: "Berkahwin", bmiCat: "Normal", complaints: ["Severe dysmenorrhoea", "Dyspareunia (Pain during sex)"], medHx: ["Nil"], gynHx: ["Endometriosis"], famHx: ["Nil"], durationSec: 195 },
+        { date: "2026-11-14", age: 42, state: "WP Putrajaya", race: "Melayu", marital: "Berkahwin", bmiCat: "Normal", complaints: ["Abdominal mass / swelling"], medHx: ["Asthma"], gynHx: ["Ovarian Cyst"], famHx: ["Cancer (Ovarian)"], durationSec: 210 },
+        { date: "2026-11-15", age: 61, state: "Selangor", race: "Cina", marital: "Balu", bmiCat: "Normal", complaints: ["Mass descending per vagina (Prolapse)", "Urinary problems"], medHx: ["Hypertension", "High Cholesterol"], gynHx: ["Nil"], famHx: ["Stroke"], durationSec: 290 },
+        { date: "2026-11-16", age: 25, state: "Johor", race: "Melayu", marital: "Bujang", bmiCat: "Underweight", complaints: ["Intermenstrual bleeding (IMB)"], medHx: ["Thyroid Disease"], gynHx: ["Nil"], famHx: ["Thyroid"], durationSec: 175 },
+        { date: "2026-11-17", age: 39, state: "Selangor", race: "India", marital: "Berkahwin", bmiCat: "Obese", complaints: ["Heavy bleeding / Clots"], medHx: ["Diabetes"], gynHx: ["Fibroid"], famHx: ["Diabetes", "Hypertension"], durationSec: 230 },
+        { date: "2026-11-18", age: 33, state: "WP Kuala Lumpur", race: "Bumiputera", marital: "Berkahwin", bmiCat: "Normal", complaints: ["Severe dysmenorrhoea"], medHx: ["Nil"], gynHx: ["PCOS"], famHx: ["Nil"], durationSec: 165 },
+        { date: "2026-11-19", age: 51, state: "Selangor", race: "Melayu", marital: "Berkahwin", bmiCat: "Overweight", complaints: ["Postcoital bleeding (PCB)"], medHx: ["Nil"], gynHx: ["Nil"], famHx: ["Cancer (Cervical)"], durationSec: 205 },
+        { date: "2026-11-20", age: 36, state: "Selangor", race: "Melayu", marital: "Berkahwin", bmiCat: "Overweight", complaints: ["Severe dysmenorrhoea"], medHx: ["Nil"], gynHx: ["Nil"], famHx: ["Cancer (Breast)"], durationSec: 190 }
+    ];
+
+    function loadAnalyticsLogs() {
+        try {
+            let saved = localStorage.getItem('gyca_analytics_real_v1');
+            if (saved) {
+                let parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(dummyAnalyticsRecords));
+    }
+
+    let analyticsLogs = loadAnalyticsLogs();
+
+    const sympList = [
+        {id:"h_hmb", ms:"Haid banyak / Ketulan", en:"Heavy bleeding / Clots"},
+        {id:"h_dysmen", ms:"Senggugut teruk", en:"Severe dysmenorrhoea"},
+        {id:"h_imb", ms:"Pendarahan di luar waktu haid (IMB)", en:"Intermenstrual bleeding (IMB)"},
+        {id:"h_pcb", ms:"Pendarahan selepas hubungan seksual (PCB)", en:"Postcoital bleeding (PCB)"},
+        {id:"h_pmb", ms:"Pendarahan selepas menopos (PMB)", en:"Postmenopausal bleeding (PMB)"},
+        {id:"h_vd", ms:"Keputihan tidak normal", en:"Abnormal vaginal discharge"},
+        {id:"h_mass", ms:"Bengkak / Benjolan perut", en:"Abdominal mass / swelling"},
+        {id:"h_tired", ms:"Kelesuan / Cepat penat", en:"Lethargy / easily fatigued"},
+        {id:"h_dyspar", ms:"Sakit ketika hubungan seksual", en:"Dyspareunia (Pain during sex)"},
+        {id:"h_bowel", ms:"Sembelit / Susah buang air besar", en:"Constipation"},
+        {id:"h_urin", ms:"Masalah kencing", en:"Urinary problems"},
+        {id:"h_prolapse", ms:"Ada ketulan turun di faraj (Rahim jatuh)", en:"Mass descending per vagina (Prolapse)"},
+        {id:"h_loa", ms:"Kurang selera makan", en:"Loss of appetite"},
+        {id:"h_low", ms:"Turun berat badan", en:"Weight loss"}
+    ];
+
+    const gynOpts = [
+        {val:"PCOS", ms:"PCOS", en:"PCOS"},
+        {val:"Endometriosis", ms:"Endometriosis", en:"Endometriosis"},
+        {val:"Fibroid", ms:"Fibroid", en:"Fibroid"},
+        {val:"Ovarian Cyst", ms:"Ovarian Cyst", en:"Ovarian Cyst"},
+        {val:"Ovarian Cancer", ms:"Kanser Ovari", en:"Ovarian Cancer"},
+        {val:"Cervical Cancer", ms:"Kanser Serviks", en:"Cervical Cancer"},
+        {val:"Endometrial Cancer", ms:"Kanser Endometrium/Rahim", en:"Endometrial Cancer"}
+    ];
+    
+    const medOpts = [
+        {val:"Hypertension", ms:"Darah Tinggi", en:"Hypertension"},
+        {val:"Diabetes", ms:"Kencing Manis", en:"Diabetes"},
+        {val:"Asthma", ms:"Asma", en:"Asthma"},
+        {val:"Thyroid Disease", ms:"Masalah Tiroid", en:"Thyroid Disease"},
+        {val:"Heart Disease", ms:"Sakit Jantung", en:"Heart Disease"},
+        {val:"High Cholesterol", ms:"Kolesterol Tinggi", en:"High Cholesterol"}
+    ];
+
+    const surgOpts = [
+        {val:"LSCS", ms:"Pembedahan Caesar (LSCS)", en:"Caesarean Section (LSCS)"},
+        {val:"Appendicectomy", ms:"Appendicectomy (Buang apendiks)", en:"Appendicectomy (Appendix removal)"},
+        {val:"Cystectomy", ms:"Cystectomy (Buang Cyst)", en:"Cystectomy (Cyst removal)"},
+        {val:"Salpingectomy", ms:"Salpingectomy (Buang Tiub)", en:"Salpingectomy (Fallopian tube removal)"},
+        {val:"Salpingo-oophorectomy", ms:"Salpingo-oophorectomy (Buang kilang telur dan tiub fallopio)", en:"Salpingo-oophorectomy (Ovary & tube removal)"},
+        {val:"D&C", ms:"D&C (Cuci Rahim)", en:"D&C (Womb cleaning)"}
+    ];
+
+    // Logik Mutually Exclusive (Saling Eksklusif)
+    document.addEventListener('change', function(e) {
+        if(e.target && e.target.type === 'checkbox') {
+            const labelEl = e.target.nextElementSibling;
+            if(!labelEl) return;
+            const labelText = labelEl.innerText.toLowerCase();
+            const isFoodBlock = e.target.closest('#divFood') || e.target.id === 'cbNoFood';
+            const isDrugBlock = e.target.closest('#divDrug') || e.target.id === 'cbNoDrug';
+            const parentGrp = isFoodBlock ? document.getElementById('step11') : (isDrugBlock ? document.getElementById('step11') : e.target.closest('.step-card'));
+            if(!parentGrp) return;
+
+            const isNoneId = ['cbNoGyn', 'cbNoMed', 'cbNoSurg', 'cbPastContraNone', 'cbNoFood', 'cbNoDrug'].includes(e.target.id);
+            const isTiada = isNoneId || labelText.includes('tiada') || labelText.includes('no medical illness') || labelText.includes('no surgical history') || labelText.includes('no gynaecological') || labelText.includes('no past') || labelText.includes('no food') || labelText.includes('no drug');
+            
+            if (e.target.id === 'cbNoFood' || e.target.closest('#divFood')) {
+                if (e.target.id === 'cbNoFood' && e.target.checked) {
+                    document.querySelectorAll('#divFood input[type="checkbox"]').forEach(cb => cb.checked = false);
+                } else if (e.target.closest('#divFood') && e.target.checked) {
+                    document.getElementById('cbNoFood').checked = false;
+                }
+                return;
+            }
+            if (e.target.id === 'cbNoDrug' || e.target.closest('#divDrug')) {
+                if (e.target.id === 'cbNoDrug' && e.target.checked) {
+                    document.querySelectorAll('#divDrug input[type="checkbox"]').forEach(cb => cb.checked = false);
+                } else if (e.target.closest('#divDrug') && e.target.checked) {
+                    document.getElementById('cbNoDrug').checked = false;
+                }
+                return;
+            }
+
+            if(isTiada && e.target.checked) {
+                parentGrp.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    if(cb !== e.target) {
+                        cb.checked = false;
+                        if(cb.id && cb.id.startsWith('cb_')) toggleEl('sub_' + cb.id.substring(3), false);
+                        if(cb.id === 'cbGynOther') toggleEl('subGynOther', false);
+                        if(cb.id === 'cbMedOther') toggleEl('subMedOther', false);
+                    }
+                });
+            } else if(!isTiada && e.target.checked) {
+                parentGrp.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    const cbLabel = cb.nextElementSibling ? cb.nextElementSibling.innerText.toLowerCase() : '';
+                    const isCbNone = ['cbNoGyn', 'cbNoMed', 'cbNoSurg', 'cbPastContraNone'].includes(cb.id) || cbLabel.includes('tiada') || cbLabel.includes('no medical illness') || cbLabel.includes('no surgical history') || cbLabel.includes('no gynaecological') || cbLabel.includes('no past');
+                    if(isCbNone) cb.checked = false;
+                });
+            }
+        }
+    });
+
+    // Smart Facility Memory (Auto-default Hospital/Klinik)
+    document.addEventListener('input', function(e) {
+        if(!e.target) return;
+        if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+            e.target.style.borderColor = 'var(--border)'; e.target.style.backgroundColor = '#F8FAFC';
+        }
+        if(e.target.id === 'pRefSource' || e.target.id === 'pHpvLoc' || e.target.id.startsWith('loc_')) {
+            let v = e.target.value.trim();
+            if(v.length >= 3) lastEnteredFacility = v;
+        }
+    });
+
+    document.addEventListener('focusin', function(e) {
+        if(!e.target) return;
+        if((e.target.id === 'pRefSource' || e.target.id === 'pHpvLoc' || e.target.id.startsWith('loc_')) && !e.target.value && lastEnteredFacility) {
+            e.target.value = lastEnteredFacility;
+        }
+    });
+
+    document.getElementById('pIC').addEventListener('input', function(e) {
+        let rawVal = e.target.value;
+        let numericVal = rawVal.replace(/[^0-9]/g, '');
+        if(rawVal.match(/^[0-9]{2}/) && numericVal.length >= 6) {
+            let yr = parseInt(numericVal.substring(0, 2), 10);
+            let curYrLast2 = new Date().getFullYear() % 100;
+            let fullYear = (yr > curYrLast2) ? 1900 + yr : 2000 + yr;
+            document.getElementById('pAge').value = new Date().getFullYear() - fullYear;
+        }
+    });
+
+    function toggleEl(id, show) { const el = document.getElementById(id); if(el) el.style.display = show ? (el.tagName==='DIV'&&el.classList.contains('grid-2')?'grid':'block') : 'none'; }
+    function showToast(msg) { const t = document.getElementById('globalToast'); if(t) { t.innerText = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); } }
+
+    function initDynamicForm() {
+        document.getElementById('symptomGrid').innerHTML = sympList.map(s => 
+            `<label class="check-pill"><input type="checkbox" id="${s.id}" onchange="handleSympClick('${s.id}', this.checked)"><span class="t_${s.id}">${s.ms}</span></label>`
+        ).join('');
+
+        const buildList = (opts, type, wrapId) => {
+            document.getElementById(wrapId).innerHTML = opts.map((o, i) => {
+                let id = `${type}_${i}`;
+                let extra = '';
+                if(type === 'gyn') {
+                    if(o.val.includes('Cancer')) extra += `<div class="field-group"><label class="tl_surg">Pembedahan?</label><input type="text" id="g_${id}_s" placeholder="Nyatakan jenis pembedahan..." class="ph_surgt"></div>`;
+                    if(['Fibroid','Ovarian Cyst','Endometriosis'].includes(o.val)) extra += `<div class="field-group"><label class="tl_surg2">Ada Pembedahan?</label><select id="g_${id}_s2"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div>`;
+                    if(o.val === 'PCOS') extra += `<div class="field-group"><label class="tl_fert">Ada Rawatan Kesuburan?</label><select id="g_${id}_f" onchange="toggleEl('divF_${id}',this.value==='Ya')"><option value="Tidak">Tidak</option><option value="Ya">Ya</option><option value="Tidak relevan">Tidak relevan</option></select></div><div id="divF_${id}" style="display:none;" class="grid-2"><label class="check-pill"><input type="checkbox" class="cb-fert-${id}" value="Blood test"><span class="tf_bld">Ujian Darah</span></label><label class="check-pill"><input type="checkbox" class="cb-fert-${id}" value="SFA"><span class="tf_sfa">Ujian Air Mani (SFA)</span></label><label class="check-pill"><input type="checkbox" class="cb-fert-${id}" value="HyFoSy"><span class="tf_hyf">Ujian Tiub Fallopio (HyFoSy)</span></label><label class="check-pill"><input type="checkbox" class="cb-fert-${id}" value="HSG"><span class="tf_hsg">Ujian X-ray Tiub (HSG)</span></label><label class="check-pill"><input type="checkbox" class="cb-fert-${id}" value="Clomid"><span>Clomid</span></label><label class="check-pill"><input type="checkbox" class="cb-fert-${id}" value="IUI"><span class="tf_iui">Permanian Beradas (IUI)</span></label><label class="check-pill"><input type="checkbox" class="cb-fert-${id}" value="IVF"><span class="tf_ivf">Bayi Tabung Uji (IVF)</span></label></div>`;
+                }
+                let locClass = type === 'surg' ? 'tl_loc_surg' : 'tl_loc';
+                let locLabel = type === 'surg' ? 'Lokasi pembedahan' : 'Rawatan di mana';
+                return `<div style="margin-bottom:12px;"><label class="check-pill"><input type="checkbox" id="cb_${id}" value="${o.val}" onchange="toggleEl('sub_${id}',this.checked)"><span class="t_${id}">${o.ms}</span></label><div id="sub_${id}" class="sub-box"><div class="grid-2"><div class="field-group"><label class="tl_yr">Tahun</label><input type="text" id="yr_${id}" placeholder="Cth: 2024" class="ph_yr"></div><div class="field-group"><label class="${locClass}">${locLabel}</label><input type="text" id="loc_${id}" list="hospList" placeholder="Taip nama klinik / hospital" class="ph_hosp"></div></div>${extra}</div></div>`;
+            }).join('');
+        };
+        buildList(gynOpts, 'gyn', 'wrapGyn');
+        buildList(medOpts, 'med', 'wrapMed');
+        buildList(surgOpts, 'surg', 'wrapSurg');
+    }
+    window.onload = initDynamicForm;
+
+    function handleStartClick(lang) {
+        if(!document.getElementById('researchConsent').checked) {
+            showToast(lang==='en' ? "Please tick the 'I understand and agree' box to proceed." : "Sila tanda kotak 'Saya faham dan setuju' untuk meneruskan.");
+            return;
+        }
+        pendingStartLang = lang;
+        if(hasInProgressDraft && currStep < totalSteps) {
+            document.getElementById('t_res1').innerText = lang==='en' ? 'Unfinished Form Detected' : 'Borang Belum Selesai';
+            document.getElementById('t_res2').innerText = lang==='en' ? 'You have an unfinished form from earlier. Would you like to continue where you left off or start from the beginning?' : 'Anda mempunyai borang yang belum selesai sebelum ini. Adakah anda ingin menyambung dari tempat terakhir atau mula dari awal?';
+            document.getElementById('b_resCont').innerText = lang==='en' ? '▶️ Continue Where Left Off' : '▶️ Sambung Dari Tempat Terakhir';
+            document.getElementById('b_resNew').innerText = lang==='en' ? '🔄 Start From Beginning' : '🔄 Mula Dari Awal (Kosongkan)';
+            document.getElementById('resumeModal').style.display = 'flex';
+        } else {
+            startClerking(lang, false);
+        }
+    }
+
+    function chooseResume(resume) {
+        document.getElementById('resumeModal').style.display = 'none';
+        if(!resume) resetFormFields();
+        startClerking(pendingStartLang, resume);
+    }
+
+    function startClerking(lang, isResume = false) {
+        document.getElementById('landingWrap').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        document.getElementById('bottomNavBar').style.display = (currStep === totalSteps) ? 'none' : 'flex';
+        document.getElementById('btnExitTop').style.display = 'inline-flex';
+        hasInProgressDraft = true;
+        if(!isResume) accumulatedSeconds = 0;
+        formStartTime = Date.now();
+        isEnglish = (lang === 'en');
+        updateLang();
+        document.getElementById('pRefType').dispatchEvent(new Event('change'));
+    }
+
+    function exitToHome() {
+        if(formStartTime) {
+            accumulatedSeconds += Math.floor((Date.now() - formStartTime) / 1000);
+            formStartTime = null;
+        }
+        document.getElementById('appContainer').style.display = 'none';
+        document.getElementById('bottomNavBar').style.display = 'none';
+        document.getElementById('btnExitTop').style.display = 'none';
+        document.getElementById('landingWrap').style.display = 'flex';
+    }
+
+    function resetFormFields() {
+        document.querySelectorAll('#appContainer input[type="text"], #appContainer input[type="number"], #appContainer input[type="date"], #appContainer textarea').forEach(el => {
+            if(el.id === 'pDel' || el.id === 'pMisc' || el.id === 'pEct') el.value = '0';
+            else el.value = '';
+            el.style.borderColor = 'var(--border)'; el.style.backgroundColor = '#F8FAFC';
+        });
+        document.querySelectorAll('#appContainer select').forEach(sel => sel.selectedIndex = 0);
+        document.querySelectorAll('#appContainer input[type="checkbox"], #appContainer input[type="radio"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.sub-box').forEach(b => b.style.display = 'none');
+        document.getElementById('divLcbYear').style.display = 'none';
+        document.getElementById('bmiDisplay').style.display = 'none';
+        document.getElementById('topActiveBox').style.display = 'none';
+        document.getElementById('lblParityBadge').innerText = 'Para 0 + 0';
+        lastEnteredFacility = '';
+        accumulatedSeconds = 0;
+        formStartTime = null;
+        document.querySelectorAll('.step-section').forEach(s => s.style.display = 'none');
+        currStep = 1;
+        document.getElementById('step1').style.display = 'block';
+    }
+
+    function finishAndReset() {
+        hasInProgressDraft = false;
+        resetFormFields();
+        document.getElementById('researchConsent').checked = false;
+        exitToHome();
+        showToast(isEnglish ? 'Form cleared for next patient.' : 'Borang dikosongkan untuk pesakit seterusnya.');
+    }
+
+    function chgCount(id, val) {
+        let el = document.getElementById(id); 
+        let v = parseInt(el.value) + val; el.value = Math.max(0, v);
+        let d = parseInt(document.getElementById('pDel').value) || 0;
+        let m = parseInt(document.getElementById('pMisc').value) || 0;
+        let e = parseInt(document.getElementById('pEct').value) || 0;
+        document.getElementById('lblParityBadge').innerText = `Para ${d} + ${m+e}`;
+        toggleEl('divLcbYear', d > 0);
+    }
+
+    function handleSympClick(id, checked) {
+        const box = document.getElementById('topActiveBox'); const content = document.getElementById('boxContent'); const title = document.getElementById('topActiveTitle');
+        if(!checked) { box.style.display = 'none'; return; }
+        
+        let sympObj = sympList.find(s => s.id === id);
+        title.innerText = isEnglish ? `INFO: ${sympObj.en.toUpperCase()}` : `INFO: ${sympObj.ms.toUpperCase()}`;
+        
+        let html = '';
+        if(id === 'h_dysmen') {
+            html += `<div class="grid-2"><div class="field-group"><label>${isEnglish ? 'Pain Score (1-10) [1=Mild, 10=Worst]' : 'Skala Sakit (1-10) [1=Sikit, 10=Teruk]'}</label><select id="s_dys_sc"><option value="">${isEnglish ? 'Select...' : 'Pilih...'}</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div><div class="field-group"><label>${isEnglish ? 'Which Day?' : 'Hari Ke Berapa?'}</label><input type="text" id="s_dys_day" placeholder="Cth: Hari 1-2" class="ph_day12"></div><div class="field-group"><label>${isEnglish ? 'Need MC / Leave?' : 'Perlu Cuti (MC)?'}</label><select id="s_dys_mc"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div><div class="field-group"><label>${isEnglish ? 'Medication taken?' : 'Ubat diambil?'}</label><input type="text" id="s_dys_med" placeholder="${isEnglish ? 'Medication name...' : 'Nama ubat...'}"></div></div>`;
+        } else if(id === 'h_hmb') {
+            html += `<div class="grid-2"><div class="field-group"><label>${isEnglish ? 'Heaviest on which days?' : 'Hari Ke Berapa Banyak?'}</label><input type="text" id="s_hmb_day" placeholder="Cth: Hari 1 dan 2" class="ph_day1and2"></div><div class="field-group"><label>${isEnglish ? 'How many pads per day?' : 'Berapa Pad Sehari?'}</label><input type="text" id="s_hmb_pad" placeholder="Cth: 5 hingga 6 pad" class="ph_pad"></div></div>`;
+        } else if(id === 'h_low') {
+            html += `<div class="grid-2"><div class="field-group"><label>${isEnglish ? 'How many Kg lost?' : 'Turun Berapa Kg?'}</label><input type="number" id="s_low_kg" placeholder="Cth: 5" class="ph_eg5"></div></div>`;
+        } else if(id === 'h_vd') {
+            html += `<div class="grid-2"><div class="field-group"><label>${isEnglish ? 'Colour?' : 'Warna keputihan?'}</label><input type="text" id="s_vd_col" placeholder="${isEnglish ? 'e.g., clear, yellow, green...' : 'Cth: jernih, kuning, hijau...'}"></div><div class="field-group"><label>${isEnglish ? 'Any smell?' : 'Ada bau busuk?'}</label><select id="s_vd_sml"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div></div>`;
+        } else if(id === 'h_mass') {
+            html += `<div class="grid-2"><div class="field-group"><label>${isEnglish ? 'Any difficulty passing urine?' : 'Ada susah kencing?'}</label><select id="s_mass_uri"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div><div class="field-group"><label>${isEnglish ? 'Any difficulty passing motion?' : 'Ada susah berak?'}</label><select id="s_mass_mot"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div></div>`;
+        } else if(id === 'h_tired') {
+            html += `<div class="grid-2"><div class="field-group"><label>${isEnglish ? 'Any shortness of breath?' : 'Ada rasa sesak nafas?'}</label><select id="s_tired_sob"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div><div class="field-group"><label>${isEnglish ? 'Any dizziness?' : 'Ada pening lalat/berpusing?'}</label><select id="s_tired_diz"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div></div>`;
+        } else if(id === 'h_dyspar') {
+            html += `<div class="field-group"><label>${isEnglish ? 'Is pain superficial or deep inside?' : 'Sakit di bahagian luar (permukaan) atau jauh ke dalam?'}</label><select id="s_dysp_loc"><option value="">${isEnglish ? 'Select...' : 'Sila Pilih...'}</option><option value="Superficial">${isEnglish ? 'Superficial (Outside)' : 'Di bahagian luar (Superficial)'}</option><option value="Deep">${isEnglish ? 'Deep inside' : 'Jauh ke dalam (Deep)'}</option></select></div>`;
+        } else if(id === 'h_urin') {
+            html += `<div class="grid-2">
+                <div class="field-group"><label>${isEnglish ? 'Discomfort/pain when passing urine?' : 'Pedih / sakit bila kencing?'}</label><select id="s_urin_p"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div>
+                <div class="field-group"><label>${isEnglish ? 'Difficulty passing urine?' : 'Susah nak kencing?'}</label><select id="s_urin_d"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div>
+                <div class="field-group"><label>${isEnglish ? 'Blood in urine?' : 'Kencing berdarah?'}</label><select id="s_urin_b"><option value="Tidak">${isEnglish ? 'No' : 'Tidak'}</option><option value="Ya">${isEnglish ? 'Yes' : 'Ya'}</option></select></div>
+            </div>`;
+        }
+        
+        html += `<div class="field-group" style="margin-top:12px;"><label>${isEnglish ? 'Since when?' : 'Sejak Bila?'}</label><input type="text" id="s_${id}_dur" placeholder="${isEnglish ? 'e.g., 2 weeks, 1 month...' : 'Cth: 2 minggu, 1 bulan...'}" class="ph_gen_dur"></div>`;
+
+        content.innerHTML = html; box.style.display = 'block'; box.scrollIntoView({behavior: "smooth", block: "center"}); if(isEnglish) updateLang();
+    }
+    function closeTopBox() { document.getElementById('topActiveBox').style.display = 'none'; }
+
+    function calcBMIOnFly() {
+        let ht = document.getElementById('pHt').value; let wt = document.getElementById('pWt').value;
+        let d = document.getElementById('bmiDisplay');
+        if(ht && wt) {
+            let bmi = (wt/Math.pow(ht/100,2)).toFixed(1);
+            let c = ''; let b = parseFloat(bmi);
+            if (b < 18.5) c = isEnglish ? 'Underweight' : 'Kurang Berat Badan';
+            else if (b < 25) c = 'Normal';
+            else if (b < 30) c = isEnglish ? 'Overweight' : 'Lebihan Berat Badan';
+            else c = isEnglish ? 'Obese' : 'Obesiti';
+            d.innerText = `BMI: ${bmi} (${c})`;
+            d.style.display = 'block';
+        } else {
+            d.style.display = 'none';
+        }
+    }
+
+    function playSound(type) {
+        try {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination); let now = audioCtx.currentTime;
+            if(type === 'half') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now+0.1); osc.frequency.setValueAtTime(783.99, now+0.2); osc.frequency.setValueAtTime(1046.50, now+0.3);
+                gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.5, now+0.05); gain.gain.exponentialRampToValueAtTime(0.01, now+1.5);
+                osc.start(now); osc.stop(now+1.5);
+            } else {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now+0.1); osc.frequency.setValueAtTime(783.99, now+0.2); osc.frequency.setValueAtTime(1046.50, now+0.3);
+                gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.3, now+0.1); gain.gain.exponentialRampToValueAtTime(0.01, now+4);
+                osc.start(now); osc.stop(now+4);
+            }
+        } catch(e) {}
+    }
+
+    function navStep(dir) {
+        if(dir === 1 && currStep < totalSteps) {
+            let stepEl = document.getElementById('step'+currStep);
+            let inputs = stepEl.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="button"]), select, textarea');
+            let isValid = true; let firstInvalid = null;
+            inputs.forEach(el => {
+                if(el.offsetParent !== null && !el.readOnly) {
+                    let val = el.value.trim();
+                    let isExcluded = ['pHt', 'pWt', 'pState', 'pLcbYear', 'pFoodOther', 'pDrugOther', 'pFoodSymp', 'pDrugSymp', 'pMedsCurr', 's_dys_med', 'pGynOtherTxt', 'pMedOtherTxt', 'pObsCompTxt', 'pCaOtherSpec'].includes(el.id);
+                    if(el.id.startsWith('s_') || el.id.startsWith('yr_') || el.id.startsWith('loc_') || el.id.startsWith('g_') || el.id.startsWith('pHpv') || el.id.startsWith('pCaRel_')) isExcluded = true;
+                    
+                    if(!val && !isExcluded) {
+                        isValid = false; 
+                        el.style.borderColor = '#EF4444'; el.style.backgroundColor = '#FEF2F2';
+                        if(!firstInvalid) firstInvalid = el;
+                    }
+                }
+            });
+            if(!isValid) { 
+                if(firstInvalid) firstInvalid.scrollIntoView({behavior: "smooth", block: "center"});
+                showToast(isEnglish ? "Please fill in required fields (red)." : "Sila isi ruangan wajib (merah)."); 
+                return; 
+            }
+        }
+
+        if (currStep === 1 && dir === -1) {
+            exitToHome();
+            return;
+        }
+
+        document.getElementById('step'+currStep).style.display = 'none';
+        currStep += dir;
+        document.getElementById('step'+currStep).style.display = 'block';
+        window.scrollTo(0,0);
+
+        if (currStep === 8) {
+            let d = parseInt(document.getElementById('pDel').value) || 0;
+            document.getElementById('obsNoBirthMsg').style.display = d === 0 ? 'block' : 'none';
+            document.getElementById('obsDetailsWrap').style.display = d > 0 ? 'block' : 'none';
+        }
+        
+        let sWord = isEnglish?'Step':'Langkah';
+        document.getElementById('stepProgressText').innerText = `${sWord} ${currStep} / ${totalSteps}`;
+        document.getElementById('btnNavNext').innerText = (currStep === totalSteps-1) ? (isEnglish?'Generate Note':'Jana Nota') : (isEnglish?'Next':'Seterusnya');
+        document.getElementById('bottomNavBar').style.display = (currStep === totalSteps) ? 'none' : 'flex';
+
+        if(currStep === 7 && dir === 1) { document.getElementById('halfwayModal').style.display='flex'; playSound('half'); }
+        if(currStep === totalSteps) {
+            hasInProgressDraft = false;
+            compileOutput();
+            playSound('end');
+            if(typeof confetti==='function') confetti({particleCount:200, spread:100, origin:{y:0.5}});
+        }
+    }
+
+    function startTestMode() {
+        resetFormFields();
+        document.getElementById('researchConsent').checked = true;
+        startClerking('ms', false);
+        document.getElementById('pName').value = 'Siti Binti Abu';
+        document.getElementById('pIC').value = '900101145566'; document.getElementById('pIC').dispatchEvent(new Event('input'));
+        document.getElementById('pRace').value = 'Melayu'; document.getElementById('pRel').value = 'Islam';
+        document.getElementById('pMarital').value = 'Berkahwin'; document.getElementById('pEdu').value = 'Diploma'; document.getElementById('pOcc').value = 'Kerajaan';
+        document.getElementById('pState').value = 'Selangor';
+        
+        document.getElementById('pDel').value = '5'; document.getElementById('pMisc').value = '2'; chgCount('pDel',0);
+        document.getElementById('pLcbYear').value = '2024';
+        
+        document.getElementById('pMenarche').value = '12'; document.getElementById('pMeno').value = 'Tidak'; document.getElementById('pMeno').dispatchEvent(new Event('change'));
+        let d = new Date(); d.setDate(d.getDate()-20); document.getElementById('pLMP').value = d.toISOString().split('T')[0];
+        document.getElementById('pCycleReg').value = 'Teratur'; document.getElementById('pPeriodDur').value = '3-6 hari';
+        
+        document.getElementById('pHt').value = '160'; document.getElementById('pWt').value = '65';
+        document.getElementById('pRefType').value = 'Dirujuk dengan Surat'; document.getElementById('pRefType').dispatchEvent(new Event('change'));
+        document.getElementById('pRefSource').value = 'Klinik Kesihatan Kajang';
+        lastEnteredFacility = 'Klinik Kesihatan Kajang';
+        calcBMIOnFly();
+        
+        document.getElementById('h_dysmen').checked = true; handleSympClick('h_dysmen', true);
+        if(document.getElementById('s_dys_sc')) { document.getElementById('s_dys_sc').value = '8'; document.getElementById('s_dys_day').value = 'Hari 1-2'; document.getElementById('s_dys_mc').value = 'Ya'; document.getElementById('s_dys_med').value = 'Ponstan'; document.getElementById('s_h_dysmen_dur').value = '3 Bulan'; closeTopBox(); }
+
+        document.getElementById('pContraCurr').value = 'Tiada';
+        document.querySelector('.cb-past-c[value="Suntikan (Depo)"]').checked = true;
+        
+        let pPap = document.querySelector('input[name="rPap"][value="Tidak pernah buat"]'); if(pPap){ pPap.checked = true; pPap.dispatchEvent(new Event('change')); }
+        let pHpv = document.querySelector('input[name="rHpv"][value="Tidak"]'); if(pHpv){ pHpv.checked = true; pHpv.dispatchEvent(new Event('change')); }
+
+        document.getElementById('cbNoGyn').checked = true; document.getElementById('cbNoGyn').dispatchEvent(new Event('change'));
+        document.getElementById('pObsBoys').value = '3';
+        document.getElementById('pObsGirls').value = '2';
+        let rNorm = document.querySelector('input[name="rAllNorm"][value="Ya"]'); if(rNorm){ rNorm.checked = true; rNorm.dispatchEvent(new Event('change')); }
+        let rComp = document.querySelector('input[name="rObsComp"][value="Tidak"]'); if(rComp){ rComp.checked = true; rComp.dispatchEvent(new Event('change')); }
+
+        document.getElementById('cbNoMed').checked = true; document.getElementById('cbNoMed').dispatchEvent(new Event('change'));
+        document.getElementById('cbNoSurg').checked = true; document.getElementById('cbNoSurg').dispatchEvent(new Event('change'));
+        
+        document.getElementById('cbNoFood').checked = true; document.getElementById('cbNoFood').dispatchEvent(new Event('change'));
+        document.querySelector('.cb-drug[value="Penicillin"]').checked = true;
+        document.querySelector('.cb-dsymp[value="Rash"]').checked = true;
+        document.querySelector('.cb-dsymp[value="Itchiness"]').checked = true;
+        document.getElementById('pMedsCurr').value = 'Tiada';
+
+        document.getElementById('pSmk').value = 'Tidak'; document.getElementById('pVap').value = 'Tidak'; document.getElementById('pAlc').value = 'Tidak'; document.getElementById('pIll').value = 'Tidak';
+        document.getElementById('cbFamCa').checked = true; document.getElementById('cbFamCa').dispatchEvent(new Event('change'));
+        document.querySelector('.cb-fam-ca[value="Breast"]').checked = true;
+        toggleEl('caRel_br', true);
+        document.getElementById('pCaRel_br').value = 'Mother';
+        
+        showToast('Mod Ujian (Test Mode) Diaktifkan!');
+    }
+
+    function formatDurationLabel(sec, en) {
+        let m = Math.floor(sec / 60);
+        let s = sec % 60;
+        if (en) return m > 0 ? `${m} min ${s} sec` : `${s} sec`;
+        return m > 0 ? `${m} minit ${s} saat` : `${s} saat`;
+    }
+
+    function compileOutput() {
+        let totalSec = accumulatedSeconds;
+        if (formStartTime) {
+            totalSec += Math.max(1, Math.floor((Date.now() - formStartTime) / 1000));
+            formStartTime = null;
+            accumulatedSeconds = totalSec;
+        }
+        let timeBadge = document.getElementById('timeTakenBadge');
+        if (timeBadge) {
+            timeBadge.innerText = isEnglish
+                ? `⏱️ Time taken: ${formatDurationLabel(totalSec, true)}`
+                : `⏱️ Masa diambil: ${formatDurationLabel(totalSec, false)}`;
+        }
+
+        let name = document.getElementById('pName').value || 'Unknown';
+        let ic = document.getElementById('pIC').value || 'No IC';
+        let age = document.getElementById('pAge').value || '?';
+        
+        const tr = (val, dict) => dict[val] || val;
+        const raceM = {"Melayu":"Malay", "Cina":"Chinese", "India":"Indian", "Bumiputera":"Bumiputera", "Bumiputera Sabah/Sarawak":"Bumiputera", "Bukan Warganegara":"Non-Citizen"};
+        const relM = {"Islam":"Muslim", "Buddha":"Buddhist", "Hindu":"Hindu", "Kristian":"Christian"};
+        const marM = {"Berkahwin":"Married", "Bujang":"Single", "Bercerai":"Divorced", "Balu":"Widowed", "Berpisah":"Separated"};
+        const eduM = {"Sekolah Rendah":"Primary School", "Tidak Habis SPM":"Pre-SPM", "Habis SPM / STPM":"SPM/STPM holder", "Diploma":"Diploma holder", "Ijazah (Degree)":"Degree holder", "Pascasiswazah (Master)":"Master's Degree", "Pascasiswazah (PhD)":"PhD holder", "Tiada Pendidikan Formal":"No Formal Education"};
+        const occM = {"Kerajaan":"Government servant", "Swasta":"Private sector", "Bekerja Sendiri":"Self-employed", "Suri Rumah":"Housewife", "Pelajar":"Student", "Pesara":"Retiree", "Tidak Bekerja":"Unemployed"};
+
+        let race = tr(document.getElementById('pRace').value, raceM);
+        let rel = tr(document.getElementById('pRel').value, relM);
+        let mar = tr(document.getElementById('pMarital').value, marM);
+        let edu = tr(document.getElementById('pEdu').value, eduM);
+        let occ = tr(document.getElementById('pOcc').value, occM);
+
+        let out = `${name}, IC: ${ic}\n${age}yo, ${race}, ${rel}, ${mar}, ${edu}, ${occ}.\n\n`;
+
+        let d = parseInt(document.getElementById('pDel').value) || 0;
+        let m = parseInt(document.getElementById('pMisc').value) || 0;
+        let e = parseInt(document.getElementById('pEct').value) || 0;
+        let lcbYr = document.getElementById('pLcbYear').value.trim();
+        out += `Para ${d}+${m+e}\n`;
+        if (d > 0 && lcbYr) {
+            out += `LCB ${lcbYr}\n`;
+        }
+
+        let meno = document.getElementById('pMeno').value;
+        if(meno === 'Ya') { out += `Menopausal since ${document.getElementById('pMenoYr').value || '?'}yo\n\n`; }
+        else {
+            let lmp = document.getElementById('pLMP').value;
+            if(lmp) lmp = lmp.split('-').reverse().join('/');
+            out += `LMP: ${lmp || '?'} (${document.getElementById('pCycleReg').value==='Teratur'?'Regular':'Irregular'}, ${document.getElementById('pPeriodDur').value.replace('hari','days')})\n\n`;
+        }
+
+        let refType = document.getElementById('pRefType').value === 'Walk-in / Sendiri' ? 'Walk-in' : 'Referred';
+        let refSrc = document.getElementById('pRefSource').value;
+        out += `Presentation: ${refType}${refSrc ? ' from '+refSrc : ''}\n`;
+        let ht = document.getElementById('pHt').value; let wt = document.getElementById('pWt').value;
+        let bmi = (ht&&wt) ? (wt/Math.pow(ht/100,2)).toFixed(1) : '';
+        let bmiCat = '';
+        if (bmi) {
+            let b = parseFloat(bmi);
+            if (b < 18.5) bmiCat = 'Underweight';
+            else if (b < 25) bmiCat = 'Normal';
+            else if (b < 30) bmiCat = 'Overweight';
+            else bmiCat = 'Obese';
+        }
+        out += `Vitals: Ht ${ht||'?'}cm, Wt ${wt||'?'}kg, BMI ${bmi||'?'} ${bmiCat?`(${bmiCat})`:''}\n\n`;
+
+        let hopi = [];
+        let hopiShort = [];
+        sympList.forEach(s => {
+            if(document.getElementById(s.id).checked) {
+                hopiShort.push(s.en);
+                let txt = s.en;
+                if(s.id === 'h_dyspar' && document.getElementById('s_dysp_loc') && document.getElementById('s_dysp_loc').value) {
+                    txt = `${document.getElementById('s_dysp_loc').value} dyspareunia`;
+                }
+
+                let dur = document.getElementById(`s_${s.id}_dur`);
+                let durVal = dur ? dur.value.trim() : '';
+                if (durVal) txt += ` for ${durVal}`;
+
+                let extra = [];
+                if(s.id === 'h_dysmen' && document.getElementById('s_dys_sc')) {
+                    let sc = document.getElementById('s_dys_sc').value; let day = document.getElementById('s_dys_day').value;
+                    let mc = document.getElementById('s_dys_mc').value==='Ya'?'Yes':'No'; let med = document.getElementById('s_dys_med').value||'Nil';
+                    extra.push(`Score: ${sc}/10, Onset: ${day}, MC: ${mc}, Meds: ${med}`);
+                }
+                if(s.id === 'h_hmb' && document.getElementById('s_hmb_pad')) extra.push(`Heaviest: ${document.getElementById('s_hmb_day').value}, ${document.getElementById('s_hmb_pad').value}`);
+                if(s.id === 'h_low' && document.getElementById('s_low_kg') && document.getElementById('s_low_kg').value) extra.push(`Lost ${document.getElementById('s_low_kg').value}kg`);
+                
+                if(s.id === 'h_vd') {
+                    if(document.getElementById('s_vd_col') && document.getElementById('s_vd_col').value) extra.push(`Colour: ${document.getElementById('s_vd_col').value}`);
+                    if(document.getElementById('s_vd_sml') && document.getElementById('s_vd_sml').value) extra.push(`Smell: ${document.getElementById('s_vd_sml').value==='Ya'?'Yes':'No'}`);
+                }
+                if(s.id === 'h_mass') {
+                    if(document.getElementById('s_mass_uri') && document.getElementById('s_mass_uri').value === 'Ya') extra.push(`Diff passing urine`);
+                    if(document.getElementById('s_mass_mot') && document.getElementById('s_mass_mot').value === 'Ya') extra.push(`Diff passing motion`);
+                }
+                if(s.id === 'h_tired') {
+                    if(document.getElementById('s_tired_sob') && document.getElementById('s_tired_sob').value === 'Ya') extra.push(`With SOB`);
+                    if(document.getElementById('s_tired_diz') && document.getElementById('s_tired_diz').value === 'Ya') extra.push(`With dizziness`);
+                }
+                if(s.id === 'h_urin') {
+                    if(document.getElementById('s_urin_p') && document.getElementById('s_urin_p').value === 'Ya') extra.push(`Dysuria`);
+                    if(document.getElementById('s_urin_d') && document.getElementById('s_urin_d').value === 'Ya') extra.push(`Diff passing urine`);
+                    if(document.getElementById('s_urin_b') && document.getElementById('s_urin_b').value === 'Ya') extra.push(`Hematuria`);
+                }
+
+                if(extra.length > 0) txt += ` | ${extra.join(' | ')}`;
+                hopi.push(txt);
+            }
+        });
+        out += `MAIN COMPLAINTS / HOPI:\n${hopi.length>0 ? hopi.join('\n') : 'Nil'}\n\n`;
+
+        const getHx = (opts, type) => {
+            let res = [];
+            opts.forEach((o,i) => {
+                let id = `${type}_${i}`;
+                let cb = document.getElementById(`cb_${id}`);
+                if(cb && cb.checked) {
+                    let s = o.en || o.val;
+                    let yr = document.getElementById(`yr_${id}`).value; let loc = document.getElementById(`loc_${id}`).value;
+                    if(yr) s += ` (${yr})`; if(loc) s += type==='surg' ? ` [Done at: ${loc}]` : ` [F/up: ${loc}]`;
+                    if(type==='gyn') {
+                        let sg = document.getElementById(`g_${id}_s`); if(sg && sg.value) s += ` [Surg: ${sg.value}]`;
+                        let sg2 = document.getElementById(`g_${id}_s2`); if(sg2 && sg2.value!=='Tidak' && sg2.value!=='No') s += ` [Surg done]`;
+                        let fert = document.getElementById(`g_${id}_f`); if(fert && (fert.value==='Ya' || fert.value==='Yes')) {
+                            let ft = Array.from(document.querySelectorAll(`.cb-fert-${id}:checked`)).map(c=>c.value).join(',');
+                            s += ` [Fertility Tx: Done] (${ft||'Not specified'})`;
+                        }
+                    }
+                    res.push(s);
+                }
+            });
+            return res.length>0 ? res.join('\n• ') : 'Nil';
+        };
+
+        const gynOptsEn = [
+            {val:"PCOS", en:"PCOS"}, {val:"Endometriosis", en:"Endometriosis"}, {val:"Fibroid", en:"Fibroid"},
+            {val:"Ovarian Cyst", en:"Ovarian Cyst"}, {val:"Ovarian Cancer", en:"Ovarian Cancer"}, {val:"Cervical Cancer", en:"Cervical Cancer"},
+            {val:"Endometrial Cancer", en:"Endometrial Cancer"}
+        ];
+        const medOptsEn = [
+            {val:"Hypertension", en:"Hypertension"}, {val:"Diabetes", en:"Diabetes"}, {val:"Asthma", en:"Asthma"},
+            {val:"Thyroid Disease", en:"Thyroid Disease"}, {val:"Heart Disease", en:"Heart Disease"}, {val:"High Cholesterol", en:"High Cholesterol"}
+        ];
+        const surgOptsEn = [
+            {val:"LSCS", en:"LSCS"}, {val:"Appendicectomy", en:"Appendicectomy"}, {val:"Cystectomy", en:"Cystectomy"},
+            {val:"Salpingectomy", en:"Salpingectomy"}, {val:"Salpingo-oophorectomy", en:"Salpingo-oophorectomy"},
+            {val:"D&C", en:"D&C"}
+        ];
+
+        let gynHx = 'Nil';
+        if (!document.getElementById('cbNoGyn').checked) {
+            let gBase = getHx(gynOptsEn, 'gyn');
+            let gArr = gBase !== 'Nil' ? [gBase] : [];
+            if (document.getElementById('cbGynOther').checked) {
+                let othTxt = document.getElementById('pGynOtherTxt').value.trim();
+                gArr.push(othTxt ? `Others (${othTxt})` : 'Others');
+            }
+            gynHx = gArr.length > 0 ? gArr.join('\n• ') : 'Nil';
+        }
+        out += `GYNAE HX:\n• ${gynHx}\n\n`;
+
+        let obsLines = [];
+        let allNormEl = document.querySelector('input[name="rAllNorm"]:checked');
+        if (d === 0) {
+            obsLines.push('Nil');
+        } else {
+            let nBoys = parseInt(document.getElementById('pObsBoys').value) || 0;
+            let nGirls = parseInt(document.getElementById('pObsGirls').value) || 0;
+            if (nBoys > 0 || nGirls > 0) {
+                obsLines.push(`Boys: ${nBoys}, Girls: ${nGirls}`);
+            }
+            if (allNormEl) {
+                if (allNormEl.value === 'Ya') {
+                    obsLines.push('All normal deliveries');
+                } else {
+                    let lscsCnt = parseInt(document.getElementById('pLscsCount').value) || 0;
+                    let svdCnt = Math.max(0, d - lscsCnt);
+                    obsLines.push(`${svdCnt} SVD and ${lscsCnt} LSCS`);
+                }
+            }
+        }
+        let obsCompEl = document.querySelector('input[name="rObsComp"]:checked');
+        if (d > 0 && obsCompEl) {
+            if (obsCompEl.value === 'Tidak') {
+                obsLines.push('No complications');
+            } else {
+                let compDet = document.getElementById('pObsCompTxt').value.trim();
+                obsLines.push(compDet ? `Complications: ${compDet}` : 'With complications');
+            }
+        }
+        out += `OBS HX:\n${obsLines.length > 0 ? obsLines.map(l => `• ${l}`).join('\n') : '• Nil'}\n\n`;
+        
+        let medHx = 'Nil';
+        if (!document.getElementById('cbNoMed').checked) {
+            let mBase = getHx(medOptsEn, 'med');
+            let mArr = mBase !== 'Nil' ? [mBase] : [];
+            if (document.getElementById('cbMedOther').checked) {
+                let medOth = document.getElementById('pMedOtherTxt').value.trim();
+                mArr.push(medOth ? `Others (${medOth})` : 'Others');
+            }
+            medHx = mArr.length > 0 ? mArr.join('\n• ') : 'Nil';
+        }
+        out += `MEDICAL HX:\n• ${medHx}\n\n`;
+        
+        let surgHx = document.getElementById('cbNoSurg').checked ? 'Nil' : getHx(surgOptsEn, 'surg');
+        out += `SURGICAL HX:\n• ${surgHx}\n\n`;
+
+        let currC = document.getElementById('pContraCurr').value; if(currC==='Tiada' || currC.toLowerCase()==='nil' || currC==='None') currC='Nil';
+        else if (currC==='Pil Perancang') currC = 'OCP'; else if (currC==='Suntikan (Depo)') currC = 'Depo injection'; else if (currC==='Implan (Susuk)') currC = 'Implant'; else if (currC==='Ikat Tiub (BTL)') currC = 'BTL'; else if (currC==='Kondom') currC = 'Condom';
+
+        let pastC = document.getElementById('cbPastContraNone').checked ? 'Nil' : Array.from(document.querySelectorAll('.cb-past-c:checked')).map(c=>c.value.replace('Pil Perancang','OCP').replace('Suntikan (Depo)','Depo injection').replace('Implan (Susuk)','Implant').replace('Kondom','Condom').replace('Ikat Tiub (BTL)','BTL')).join(', ') || 'Nil';
+        out += `CONTRACEPTION:\n• Current: ${currC}\n• Past: ${pastC}\n`;
+        
+        const locMap = {
+            "Klinik Kesihatan (KK)": "Klinik Kesihatan (KK)",
+            "Hospital Kerajaan": "Govt hospital",
+            "Klinik Swasta / GP": "Private clinic / GP",
+            "Hospital / Klinik Pakar Swasta": "Private specialist hospital",
+            "LPPKN": "LPPKN",
+            "Lain-lain": "Others"
+        };
+
+        let pPap = document.querySelector('input[name="rPap"]:checked'); pPap = pPap?pPap.value.replace('Dalam setahun yang lepas','< 1 yr').replace('Antara 1-3 tahun','1-3 yrs').replace('> 3 tahun lepas','> 3 yrs').replace('Tidak pernah buat','Never done'):'Nil';
+        if(pPap!=='Never done' && pPap!=='Nil') {
+            let pr = document.querySelector('input[name="rPapRes"]:checked'); pr = pr?pr.value.replace('Tidak normal','Abnormal').replace('Tidak pasti','Unsure'):'Not specified';
+            let rawPapLoc = document.getElementById('pPapLoc').value;
+            let papLocEn = locMap[rawPapLoc] || rawPapLoc || 'Not specified';
+            out += `• Pap Smear: ${pPap} (Result: ${pr}, At: ${papLocEn})\n`;
+        } else { out += `• Pap Smear: ${pPap}\n`; }
+
+        let pHpv = document.querySelector('input[name="rHpv"]:checked'); pHpv = pHpv?pHpv.value.replace('Ya','Done').replace('Tidak','Never done'):'Nil';
+        if(pHpv==='Done') {
+            let hr = document.querySelector('input[name="rHpvRes"]:checked'); hr = hr?hr.value.replace('Normal (Negatif)','Negative').replace('Tidak Normal (Positif)','Positive').replace('Tidak pasti','Unsure'):'Not specified';
+            let rawHpvLoc = document.getElementById('pHpvLoc').value;
+            let hpvLocEn = locMap[rawHpvLoc] || rawHpvLoc || 'Not specified';
+            out += `• HPV DNA: ${pHpv} (${document.getElementById('pHpvYr').value||'Year not specified'}, Result: ${hr}, At: ${hpvLocEn})\n\n`;
+        } else { out += `• HPV DNA: ${pHpv}\n\n`; }
+
+        let fAll = document.getElementById('cbNoFood').checked ? 'Nil' : Array.from(document.querySelectorAll('.cb-food:checked')).map(c=>c.value).join(', ');
+        if(!document.getElementById('cbNoFood').checked && document.getElementById('pFoodOther').value) fAll += (fAll?', ':'') + document.getElementById('pFoodOther').value;
+        let fSympArr = Array.from(document.querySelectorAll('.cb-fsymp:checked')).map(c=>c.value);
+        if(document.getElementById('pFoodSymp').value) fSympArr.push(document.getElementById('pFoodSymp').value);
+        if(fAll && fAll!=='Nil' && fSympArr.length > 0) fAll += ` (Symp: ${fSympArr.join(', ')})`;
+        
+        let dAll = document.getElementById('cbNoDrug').checked ? 'Nil' : Array.from(document.querySelectorAll('.cb-drug:checked')).map(c=>c.value).join(', ');
+        if(!document.getElementById('cbNoDrug').checked && document.getElementById('pDrugOther').value) dAll += (dAll?', ':'') + document.getElementById('pDrugOther').value;
+        let dSympArr = Array.from(document.querySelectorAll('.cb-dsymp:checked')).map(c=>c.value);
+        if(document.getElementById('pDrugSymp').value) dSympArr.push(document.getElementById('pDrugSymp').value);
+        if(dAll && dAll!=='Nil' && dSympArr.length > 0) dAll += ` (Symp: ${dSympArr.join(', ')})`;
+        
+        let meds = document.getElementById('pMedsCurr').value || 'Nil'; if(meds.toLowerCase()==='tiada' || meds.toLowerCase()==='nil') meds='Not on medication';
+        out += `ALLERGIES & MEDS:\n• Food: ${fAll||'Nil'}\n• Drug: ${dAll||'Nil'}\n• Meds: ${meds}\n\n`;
+
+        let smk = document.getElementById('pSmk').value.replace('Tidak','No').replace('Ya','Yes').replace('Telah Berhenti','Ex-smoker');
+        let vap = document.getElementById('pVap').value.replace('Tidak','No').replace('Ya','Yes').replace('Telah Berhenti','Ex-user');
+        let alc = document.getElementById('pAlc').value.replace('Tidak','No').replace('Ya','Yes').replace('Telah Berhenti','Ex-user');
+        let ill = document.getElementById('pIll').value.replace('Tidak','No').replace('Ya','Yes').replace('Telah Berhenti','Ex-user');
+        
+        let fam = Array.from(document.querySelectorAll('.cb-fam:checked')).map(c=>c.value);
+        if(fam.includes('Cancer')) {
+            const caMap = [
+                { val: 'Breast', relId: 'pCaRel_br' },
+                { val: 'Cervical', relId: 'pCaRel_cx' },
+                { val: 'Ovarian', relId: 'pCaRel_ov' },
+                { val: 'Endometrial Cancer (Womb)', relId: 'pCaRel_en' },
+                { val: 'Colorectal', relId: 'pCaRel_co' },
+                { val: 'Lung', relId: 'pCaRel_lu' },
+                { val: 'Others', relId: 'pCaRel_ot', specId: 'pCaOtherSpec' }
+            ];
+            let caEntries = [];
+            document.querySelectorAll('.cb-fam-ca:checked').forEach(cb => {
+                let meta = caMap.find(m => m.val === cb.value);
+                let label = cb.value;
+                if (meta && meta.specId) {
+                    let sp = document.getElementById(meta.specId).value.trim();
+                    label = sp ? `Others: ${sp}` : 'Others';
+                }
+                let rel = meta && document.getElementById(meta.relId) ? document.getElementById(meta.relId).value.trim() : '';
+                caEntries.push(rel ? `${label} [${rel}]` : label);
+            });
+            let caStr = caEntries.join(', ');
+            fam[fam.indexOf('Cancer')] = `Cancer${caStr?' ('+caStr+')':''}`;
+        }
+        out += `SOCIAL & FAMILY HX:\n• Smoke: ${smk}, Vape: ${vap}, Alcohol: ${alc}, Illicit Drugs: ${ill}\n• Family Hx: ${fam.join(', ')||'Nil'}`;
+
+        let newRec = {
+            date: new Date().toISOString().split('T')[0],
+            age: parseInt(age) || null,
+            state: document.getElementById('pState').value || 'Tidak Dinyatakan',
+            race: document.getElementById('pRace').value || 'Tidak Dinyatakan',
+            marital: document.getElementById('pMarital').value || 'Tidak Dinyatakan',
+            bmiCat: bmiCat || 'Tidak Dinyatakan',
+            complaints: hopiShort.length > 0 ? hopiShort : ['Routine / Follow-up'],
+            medHx: document.getElementById('cbNoMed').checked ? ['Nil'] : Array.from(document.querySelectorAll('#wrapMed input[type="checkbox"]:checked')).map(c=>c.value),
+            gynHx: document.getElementById('cbNoGyn').checked ? ['Nil'] : Array.from(document.querySelectorAll('#wrapGyn input[type="checkbox"]:checked')).map(c=>c.value),
+            famHx: fam.length > 0 ? fam : ['Nil'],
+            durationSec: totalSec
+        };
+        try {
+            let existingReal = JSON.parse(localStorage.getItem('gyca_analytics_real_v1') || '[]');
+            existingReal.push(newRec);
+            localStorage.setItem('gyca_analytics_real_v1', JSON.stringify(existingReal));
+            analyticsLogs = existingReal;
+        } catch(err) {
+            analyticsLogs.push(newRec);
+        }
+
+        document.getElementById('finalOutputText').value = out;
+        let qrOut = out.replace(/\r?\n/g, '\r\n');
+        if (typeof QRious !== 'undefined') {
+            new QRious({ element: document.getElementById('qrCanvas1'), value: qrOut.substring(0,950), size: 260, background: 'white', foreground: '#1E293B' });
+            
+            let grid = document.getElementById('multiQRGrid'); grid.innerHTML = '';
+            let chunks = 5;
+            let lines = qrOut.split('\r\n');
+            let totalLen = qrOut.length;
+            let targetPerChunk = Math.ceil(totalLen / chunks);
+            let chunkParts = [];
+            let curBuf = '';
+            lines.forEach(line => {
+                if (curBuf.length > 0 && (curBuf.length + line.length + 2) > targetPerChunk && chunkParts.length < chunks - 1) {
+                    chunkParts.push(curBuf + '\r\n');
+                    curBuf = line;
+                } else {
+                    curBuf += (curBuf.length > 0 ? '\r\n' : '') + line;
+                }
+            });
+            if (curBuf.length > 0) chunkParts.push(curBuf);
+            while (chunkParts.length < chunks) chunkParts.push('');
+
+            let savePartTxt = isEnglish ? 'Save Part' : 'Simpan Bahagian';
+            
+            for(let i=0; i<chunks; i++) {
+                let div = document.createElement('div'); div.className = 'multi-qr-tile';
+                div.innerHTML = `<div style="font-weight:900; color:var(--violet-dark); margin-bottom:8px;">SCAN ${i+1}/${chunks}</div><canvas id="mqr_${i}"></canvas>
+                <button class="btn-action-outline btn-save-part" data-part="${i+1}" style="margin-top:10px; max-width:200px;" onclick="downloadImage('mqr_${i}', 'GYCA_QR_Part${i+1}.png')">${savePartTxt} ${i+1}</button>`;
+                grid.appendChild(div);
+                new QRious({ element: document.getElementById(`mqr_${i}`), value: chunkParts[i] || ' ', size: 200, background: 'white', foreground: '#4A00E0' });
+            }
+        }
+
+        let saveBtnImg = document.getElementById('btnSaveQR1');
+        if(saveBtnImg) saveBtnImg.innerText = isEnglish ? 'Save QR Image' : 'Simpan QR Image';
+    }
+
+    function switchQR(type) {
+        document.getElementById('singleQRWrap').style.display = type === 'single' ? 'flex' : 'none';
+        document.getElementById('multiQRWrap').style.display = type === 'multi' ? 'block' : 'none';
+        let b1 = document.getElementById('btnTab1QR'); let b5 = document.getElementById('btnTab5QR');
+        if(type === 'single') { b1.style.background = 'var(--violet)'; b1.style.color = 'white'; b5.style.background = 'transparent'; b5.style.color = 'var(--violet-dark)'; } 
+        else { b5.style.background = 'var(--violet)'; b5.style.color = 'white'; b1.style.background = 'transparent'; b1.style.color = 'var(--violet-dark)'; }
+    }
+
+    function copyText() { document.getElementById('finalOutputText').select(); document.execCommand('copy'); showToast(isEnglish?"Text copied!":"Teks disalin!"); }
+    function downloadText() {
+        let blob = new Blob([document.getElementById('finalOutputText').value], { type: "text/plain" });
+        let a = document.createElement("a"); a.download = "Nota_Klinikal_GYCA.txt"; a.href = window.URL.createObjectURL(blob);
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    function downloadImage(id, fn) {
+        let a = document.createElement("a"); a.download = fn; a.href = document.getElementById(id).toDataURL("image/png");
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+
+    function renderBarGroup(title, countsMap, total) {
+        let entries = Object.entries(countsMap).sort((a,b) => b[1] - a[1]);
+        if(entries.length === 0) return '';
+        let rows = entries.map(([lbl, cnt]) => {
+            let pct = total > 0 ? Math.round((cnt / total) * 100) : 0;
+            return `<div class="bar-row"><div class="bar-meta"><span>${lbl}</span><span>${cnt} (${pct}%)</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></div>`;
+        }).join('');
+        return `<div class="dash-section"><div class="dash-sec-title">${title}</div>${rows}</div>`;
+    }
+
+    function promptAnalyticsAuth() {
+        document.getElementById('analyticsPwdInput').value = '';
+        document.getElementById('analyticsAuthModal').style.display = 'flex';
+        setTimeout(() => document.getElementById('analyticsPwdInput').focus(), 100);
+    }
+
+    function verifyAnalyticsPwd() {
+        let pwd = document.getElementById('analyticsPwdInput').value;
+        if (pwd === 'gyca2026') {
+            document.getElementById('analyticsAuthModal').style.display = 'none';
+            openAnalytics();
+        } else {
+            showToast(isEnglish ? 'Incorrect password!' : 'Kata laluan salah!');
+            document.getElementById('analyticsPwdInput').value = '';
+        }
+    }
+
+    function openAnalytics() {
+        analyticsLogs = loadAnalyticsLogs();
+        let total = analyticsLogs.length;
+        let stateMap = {}, ageMap = { '< 20 yo': 0, '20 - 29 yo': 0, '30 - 39 yo': 0, '40 - 49 yo': 0, '50+ yo': 0 };
+        let raceMap = {}, maritalMap = {}, bmiMap = {}, compMap = {}, medMap = {}, famMap = {};
+        let durSum = 0, durCount = 0;
+
+        analyticsLogs.forEach(r => {
+            if (typeof r.durationSec === 'number' && r.durationSec > 0) { durSum += r.durationSec; durCount++; }
+            stateMap[r.state] = (stateMap[r.state] || 0) + 1;
+            raceMap[r.race] = (raceMap[r.race] || 0) + 1;
+            maritalMap[r.marital] = (maritalMap[r.marital] || 0) + 1;
+            bmiMap[r.bmiCat] = (bmiMap[r.bmiCat] || 0) + 1;
+
+            if(r.age) {
+                if(r.age < 20) ageMap['< 20 yo']++;
+                else if(r.age < 30) ageMap['20 - 29 yo']++;
+                else if(r.age < 40) ageMap['30 - 39 yo']++;
+                else if(r.age < 50) ageMap['40 - 49 yo']++;
+                else ageMap['50+ yo']++;
+            }
+
+            (r.complaints || []).forEach(c => { compMap[c] = (compMap[c] || 0) + 1; });
+            (r.medHx || []).forEach(m => { if(m !== 'Nil') medMap[m] = (medMap[m] || 0) + 1; });
+            (r.gynHx || []).forEach(g => { if(g !== 'Nil') medMap[`Gynae: ${g}`] = (medMap[`Gynae: ${g}`] || 0) + 1; });
+            (r.famHx || []).forEach(f => { if(f !== 'Nil') famMap[f] = (famMap[f] || 0) + 1; });
+        });
+
+        let topState = Object.entries(stateMap).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
+        let topAge = Object.entries(ageMap).sort((a,b)=>b[1]-a[1])[0]?.[0] || '-';
+        let avgSec = durCount > 0 ? Math.round(durSum / durCount) : 0;
+        let avgTimeStr = durCount > 0 ? formatDurationLabel(avgSec, true) : '-';
+
+        let html = `<div class="dash-grid">
+            <div class="dash-stat"><div class="dash-stat-val">${total}</div><div class="dash-stat-lbl">Total Patients</div></div>
+            <div class="dash-stat"><div class="dash-stat-val" style="font-size:16px;">${avgTimeStr}</div><div class="dash-stat-lbl">Avg Fill Time</div></div>
+            <div class="dash-stat"><div class="dash-stat-val" style="font-size:16px;">${topState}</div><div class="dash-stat-lbl">Top State</div></div>
+            <div class="dash-stat"><div class="dash-stat-val" style="font-size:16px;">${topAge}</div><div class="dash-stat-lbl">Top Age Group</div></div>
+        </div>`;
+
+        html += renderBarGroup('📍 Location by State (Negeri)', stateMap, total);
+        html += renderBarGroup('🎂 Age Distribution (Julat Umur)', ageMap, total);
+        html += renderBarGroup('⚖️ BMI Categories', bmiMap, total);
+        html += renderBarGroup('👥 Race & Demographics', raceMap, total);
+        html += renderBarGroup('💍 Marital Status', maritalMap, total);
+        html += renderBarGroup('🩺 Main Reasons for Visit (Simptom)', compMap, total);
+        html += renderBarGroup('🏥 Medical & Gynae History', medMap, total);
+        html += renderBarGroup('🧬 Family History', famMap, total);
+
+        document.getElementById('analyticsDashboardBody').innerHTML = html;
+        document.getElementById('analyticsModal').style.display = 'flex';
+    }
+
+    function exportAnalyticsCSV() {
+        let headers = ['Date','Age','State','Race','Marital_Status','BMI_Category','Main_Complaints','Medical_Hx','Gynae_Hx','Family_Hx','Duration_Seconds','Time_Taken'];
+        let rows = analyticsLogs.map(r => [
+            r.date, r.age||'', r.state, r.race, r.marital, r.bmiCat,
+            `"${(r.complaints||[]).join('; ')}"`,
+            `"${(r.medHx||[]).join('; ')}"`,
+            `"${(r.gynHx||[]).join('; ')}"`,
+            `"${(r.famHx||[]).join('; ')}"`,
+            r.durationSec || 0,
+            `"${formatDurationLabel(r.durationSec || 0, true)}"`
+        ].join(','));
+        let csv = [headers.join(','), ...rows].join('\n');
+        let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        let a = document.createElement('a');
+        a.download = `GYCA_Audit_Data_${new Date().toISOString().split('T')[0]}.csv`;
+        a.href = window.URL.createObjectURL(blob);
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+
+    function resetAnalyticsLogs() {
+        localStorage.removeItem('gyca_analytics_real_v1');
+        analyticsLogs = loadAnalyticsLogs();
+        openAnalytics();
+        showToast(isEnglish ? 'Real data cleared (Demo view restored).' : 'Rekod sebenar dipadam (Paparan contoh dipulihkan).');
+    }
+
+    function triggerCodeRed() {
+        document.getElementById('codeRedModal').style.display = 'flex';
+        try {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const playSirenPulse = () => {
+                let now = audioCtx.currentTime;
+                let osc1 = audioCtx.createOscillator();
+                let osc2 = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+                osc1.frequency.setValueAtTime(880, now);
+                osc1.frequency.setValueAtTime(1320, now + 0.25);
+                osc2.frequency.setValueAtTime(1760, now);
+                osc2.frequency.setValueAtTime(2200, now + 0.25);
+                gain.gain.setValueAtTime(1.0, now);
+                gain.gain.setValueAtTime(1.0, now + 0.48);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                osc1.start(now); osc2.start(now);
+                osc1.stop(now + 0.5); osc2.stop(now + 0.5);
+            };
+
+            if(codeRedInterval) clearInterval(codeRedInterval);
+            playSirenPulse();
+            codeRedInterval = setInterval(playSirenPulse, 500);
+        } catch(e) {}
+    }
+
+    function stopCodeRed() {
+        document.getElementById('codeRedModal').style.display = 'none';
+        if(codeRedInterval) clearInterval(codeRedInterval);
+    }
+
+    function toggleLanguage() { isEnglish = !isEnglish; updateLang(); }
+    
+    function updateLang() {
+        document.getElementById('btnLangToggle').innerText = isEnglish ? '🌐 BM' : '🌐 English';
+        
+        const tr = (id, ms, en) => { const el = document.getElementById(id); if(el) el.innerText = isEnglish?en:ms; };
+        const setPlaceholders = (cls, ms, en) => { document.querySelectorAll(`.${cls}`).forEach(e => e.placeholder = isEnglish ? en : ms); };
+
+        tr('heroBadge', '🩺 KLINIK GINEKOLOGI', '🩺 GYNAECOLOGY CLINIC');
+        tr('heroTitle', 'Aplikasi GYCA', 'GYCA App'); tr('heroSub', 'Gynaecology Clerking App', 'Gynaecology Clerking App');
+        tr('info1_t', 'Penting', 'Important'); tr('info1_d', 'Aplikasi GYCA mempercepatkan proses pesakit dilihat di klinik ginekologi.', 'GYCA speeds up the process of patients being seen in the gynaecology clinic.');
+        tr('info2_t', '100% Rahsia (PDPA)', '100% Confidential (PDPA)'); tr('info2_d', 'Data diubah menjadi kod QR yang dihantar terus ke rekod hospital anda. Tiada nama atau IC disimpan.', 'Data is converted to a QR code sent directly to hospital records. No name or ID saved.');
+        tr('info3_t', 'Butang Kecemasan (Kod Merah)', 'Emergency Button (Code Red)');
+        const info3El = document.getElementById('info3_d');
+        if (info3El) {
+            info3El.innerHTML = isEnglish
+                ? 'If you experience very heavy bleeding, fainting, or severe abdominal pain while waiting, press the red <strong>"🚨 Emergency"</strong> button at the top to alert medical staff immediately.'
+                : 'Jika anda mengalami pendarahan terlalu banyak, pitam, atau sakit perut yang amat sangat semasa menunggu, tekan butang merah <strong>"🚨 Kecemasan"</strong> di bahagian atas untuk memanggil staf perubatan segera.';
+        }
+        tr('btnExitTop', '🚪 Keluar', '🚪 Exit');
+        tr('consent_text', 'Data klinikal awanama (tanpa nama atau nombor kad pengenalan) mungkin akan disimpan dan diproses secara sulit untuk tujuan penambahbaikan perkhidmatan klinikal, statistik, dan penyelidikan perubatan.', 'Anonymised clinical data (without name or ID number) may be stored and processed confidentially for the purpose of clinical service improvement, statistics, and medical research.');
+        tr('consent_agree', 'Saya faham dan setuju.', 'I understand and agree.');
+
+        tr('t_step1', 'Maklumat Peribadi', 'Demographics'); tr('l_name', 'Nama Penuh *', 'Full Name *'); tr('l_ic', 'No. Kad Pengenalan / Pasport *', 'IC / Passport No. *'); tr('l_age', 'Umur', 'Age'); tr('l_race', 'Bangsa', 'Race'); tr('l_rel', 'Agama', 'Religion'); tr('l_marital', 'Status Perkahwinan', 'Marital Status'); tr('l_edu', 'Tahap Pendidikan', 'Education Level'); tr('l_occ', 'Pekerjaan', 'Occupation'); tr('l_state', 'Negeri Semasa (Untuk Rekod Statistik)', 'Current State (For Statistics)');
+        
+        tr('t_step2', 'Sejarah Kehamilan', 'Pregnancy History'); tr('l_del', 'Bersalin', 'Deliveries'); tr('l_misc', 'Keguguran', 'Miscarriages'); tr('l_ect', 'Luar Rahim', 'Ectopic'); tr('l_lcb', 'Tahun Kelahiran Anak Terakhir (Last Childbirth)', 'Year of Last Childbirth');
+        tr('t_step3', 'Sejarah Haid', 'Menstrual History'); tr('l_menarche', 'Umur Mula Datang Haid', 'Age when your periods first came'); tr('l_meno', 'Telah Putus Haid (Menopos)?', 'Menopause?'); tr('l_menoyr', 'Umur Berapa Menopos?', 'Age at Menopause?'); tr('l_lmp', 'Tarikh Hari Pertama Haid Terakhir (LMP)', 'Last Menstrual Period (LMP)'); tr('l_cycle', 'Kitaran Haid', 'Menstrual Cycle'); tr('l_durp', 'Tempoh Pendarahan', 'Bleeding Duration');
+        
+        tr('t_step4', 'Rujukan & Fasiliti', 'Referral & Facility'); tr('l_refType', 'Jenis Kedatangan', 'Visit Type'); tr('l_refSrc', 'Rujukan Dari Mana?', 'Referred From?'); tr('l_ht', 'Tinggi (cm)', 'Height (cm)'); tr('l_wt', 'Berat (kg)', 'Weight (kg)');
+        
+        tr('t_step5', 'Masalah / Simptom Utama', 'Main Symptoms / Complaints'); tr('b_closeBox', 'Selesai & Tutup', 'Done & Close');
+        sympList.forEach(s => { const el = document.querySelector(`.t_${s.id}`); if(el) el.innerText = isEnglish?s.en:s.ms; });
+
+        const instrEl = document.getElementById('l_sympInstr');
+        if (instrEl) {
+            instrEl.innerHTML = isEnglish 
+                ? '👇 PLEASE TICK YOUR SYMPTOMS 👇<br><span style="font-weight:600; font-size:11px;">(If info box closes, uncheck and recheck)</span>'
+                : '👇 SILA TANDAKAN SIMPTOM YANG DIALAMI 👇<br><span style="font-weight:600; font-size:11px;">(Jika kotak soalan tertutup, nyahtanda dan tanda semula)</span>';
+        }
+
+        tr('t_step6', 'Pap Smear, HPV & Perancang', 'Pap Smear, HPV & Contraception'); tr('l_contraCurr', 'Kaedah Perancang Terkini', 'Current Contraception'); tr('l_contraPast', 'KAEDAH PERANCANG LAMPAU (PERNAH DIGUNA)', 'PAST CONTRACEPTION METHODS'); tr('l_pastNone', 'Tiada perancang lampau', 'No past contraception');
+        tr('t_cpil', 'Pil Perancang', 'OCP (Pills)'); tr('t_cdep', 'Suntikan (Depo)', 'Depo Injection'); tr('t_cimp', 'Implan (Susuk)', 'Implant'); tr('t_ccon', 'Kondom', 'Condom'); tr('t_cbtl', 'Ikat Tiub (BTL)', 'Tubal Ligation (BTL)');
+        tr('l_pap', 'BILA TERAKHIR BUAT PAP SMEAR?', 'WHEN WAS LAST PAP SMEAR DONE?'); tr('t_p1', 'Dalam setahun yang lepas', '< 1 year ago'); tr('t_p2', 'Antara 1-3 tahun', '1-3 years ago'); tr('t_p3', '> 3 tahun lepas', '> 3 years ago'); tr('t_p4', 'Tidak pernah buat', 'Never done'); tr('l_papRes', 'KEPUTUSAN:', 'RESULT:'); tr('l_papLoc', 'BUAT DI MANA?', 'DONE AT?'); document.querySelectorAll('.t_norm').forEach(e=>e.innerText=isEnglish?'Normal':'Normal'); document.querySelectorAll('.t_abnorm').forEach(e=>e.innerText=isEnglish?'Abnormal':'Tidak normal'); document.querySelectorAll('.t_unsure').forEach(e=>e.innerText=isEnglish?'Unsure':'Tidak pasti');
+        tr('l_hpv', 'UJIAN HPV DNA:', 'HPV DNA TEST:'); tr('t_hyes', 'Pernah buat (Ya)', 'Done (Yes)'); tr('t_hno', 'Tidak pernah buat', 'Never done'); tr('l_hpvYr', 'TAHUN?', 'WHEN (YEAR)?'); tr('l_hpvLoc', 'LOKASI?', 'WHERE?'); tr('l_hpvRes', 'KEPUTUSAN UJIAN HPV:', 'HPV TEST RESULT:');
+        document.querySelectorAll('.t_normneg').forEach(e=>e.innerText=isEnglish?'Normal (Negative)':'Normal (Negatif)'); document.querySelectorAll('.t_abnormpos').forEach(e=>e.innerText=isEnglish?'Abnormal (Positive)':'Tidak normal (Positif)');
+
+        tr('t_step7', 'Sejarah Sakit Puan', 'Gynaecology History'); tr('l_noGyn', 'Tiada penyakit sakit puan', 'No gynaecological diseases'); tr('t_gynOther', 'Lain-lain', 'Others'); tr('l_gynOthSpec', 'Nyatakan Masalah Sakit Puan Lain', 'Specify Other Gynaecological Condition');
+        tr('t_step8', 'Sejarah Kehamilan (Anak)', 'Obstetric History'); tr('obsNoBirthMsg', 'Tiada sejarah bersalin direkodkan pada Langkah 2.', 'No deliveries recorded in Step 2.'); tr('l_obsBoys', 'Bilangan Anak Lelaki (Boys)', 'How many boys?'); tr('l_obsGirls', 'Bilangan Anak Perempuan (Girls)', 'How many girls?'); tr('l_allNorm', 'Semua bersalin normal (Vaginal delivery)?', 'All normal (vaginal delivery)?'); tr('l_howManyLscs', 'Berapa kali pembedahan LSCS?', 'How many LSCS?'); tr('l_obsComp', 'Ada sebarang komplikasi semasa hamil / bersalin?', 'Any complications?'); tr('l_obsCompDet', 'Nyatakan Komplikasi', 'Specify Complications');
+        document.querySelectorAll('.t_yes').forEach(e=>e.innerText=isEnglish?'Yes':'Ya'); document.querySelectorAll('.t_no').forEach(e=>e.innerText=isEnglish?'No':'Tidak');
+        tr('t_step9', 'Sejarah Perubatan', 'Medical History'); tr('l_noMed', 'Tiada penyakit perubatan', 'No medical illness'); tr('t_medOther', 'Lain-lain', 'Others'); tr('l_medOthSpec', 'Nyatakan Penyakit Lain', 'Specify Other Medical Illness');
+        tr('t_step10', 'Sejarah Pembedahan', 'Surgical History'); tr('l_noSurg', 'Tiada pembedahan dahulu', 'No surgical history');
+        
+        document.querySelectorAll('.tl_yr').forEach(e=>e.innerText=isEnglish?'Year':'Tahun'); document.querySelectorAll('.tl_loc').forEach(e=>e.innerText=isEnglish?'Location/F-up':'Rawatan di mana'); document.querySelectorAll('.tl_loc_surg').forEach(e=>e.innerText=isEnglish?'Surgery Location':'Lokasi pembedahan'); document.querySelectorAll('.tl_surg').forEach(e=>e.innerText=isEnglish?'Surgery?':'Pembedahan?'); document.querySelectorAll('.tl_surg2').forEach(e=>e.innerText=isEnglish?'Surgery done?':'Ada Pembedahan?'); document.querySelectorAll('.tl_fert').forEach(e=>e.innerText=isEnglish?'Fertility Treatment?':'Rawatan Kesuburan?');
+        document.querySelectorAll('.tf_bld').forEach(e=>e.innerText=isEnglish?'Blood test':'Ujian Darah');
+        document.querySelectorAll('.tf_sfa').forEach(e=>e.innerText=isEnglish?'Seminal Fluid Analysis (SFA)':'Ujian Air Mani (SFA)');
+        document.querySelectorAll('.tf_hyf').forEach(e=>e.innerText=isEnglish?'Hysterosalpingo-foam sonography (HyFoSy)':'Ujian Tiub Fallopio (HyFoSy)');
+        document.querySelectorAll('.tf_hsg').forEach(e=>e.innerText=isEnglish?'Hysterosalpingography (HSG)':'Ujian X-ray Tiub (HSG)');
+        document.querySelectorAll('.tf_iui').forEach(e=>e.innerText=isEnglish?'Intrauterine insemination (IUI)':'Permanian Beradas (IUI)');
+        document.querySelectorAll('.tf_ivf').forEach(e=>e.innerText=isEnglish?'In vitro fertilization (IVF)':'Bayi Tabung Uji (IVF)');
+        gynOpts.forEach((o,i)=>{ const el = document.querySelector(`.t_gyn_${i}`); if(el) el.innerText = isEnglish?o.en:o.ms; });
+        medOpts.forEach((o,i)=>{ const el = document.querySelector(`.t_med_${i}`); if(el) el.innerText = isEnglish?o.en:o.ms; });
+        surgOpts.forEach((o,i)=>{ const el = document.querySelector(`.t_surg_${i}`); if(el) el.innerText = isEnglish?o.en:o.ms; });
+        
+        tr('t_step11', 'Alahan & Ubat-ubatan', 'Allergies & Medications'); tr('l_allFood', 'ALAHAN MAKANAN', 'FOOD ALLERGIES'); tr('l_noFood', 'Saya tiada alahan makanan', 'No food allergies'); tr('tf_sf', 'Makanan Laut', 'Seafood'); tr('tf_pn', 'Kacang Tanah', 'Peanuts'); tr('tf_eg', 'Telur', 'Eggs'); tr('tf_dy', 'Tenusu', 'Dairy'); tr('l_allSymp1', 'SIMPTOM ALAHAN MAKANAN:', 'FOOD ALLERGY SYMPTOMS:'); 
+        tr('l_allDrug', 'ALAHAN UBAT', 'DRUG ALLERGIES'); tr('l_noDrug', 'Saya tiada alahan ubat', 'No drug allergies'); tr('td_ab', 'Antibiotik', 'Antibiotics'); tr('td_ns', 'NSAID (Ubat tahan sakit)', 'NSAID (Pain killer)'); tr('l_allSymp2', 'SIMPTOM ALAHAN UBAT:', 'DRUG ALLERGY SYMPTOMS:'); tr('l_medsCurr', 'Senarai Ubat Terkini (Meds)', 'Current Medications'); 
+        document.querySelectorAll('.ts_eye').forEach(e=>e.innerText=isEnglish?'Eye swelling':'Bengkak mata');
+        document.querySelectorAll('.ts_face').forEach(e=>e.innerText=isEnglish?'Facial swelling':'Bengkak muka');
+        document.querySelectorAll('.ts_rash').forEach(e=>e.innerText=isEnglish?'Rash':'Ruam');
+        document.querySelectorAll('.ts_itch').forEach(e=>e.innerText=isEnglish?'Itchiness':'Gatal-gatal');
+        document.querySelectorAll('.ts_icu').forEach(e=>e.innerText=isEnglish?'ICU admission':'Masuk ICU');
+        
+        tr('t_step12', 'Gaya Hidup & Keluarga', 'Lifestyle & Family Hx'); tr('l_smk', 'Merokok', 'Smoking'); tr('l_vap', 'Vape', 'Vaping'); tr('l_alc', 'Alkohol', 'Alcohol'); tr('l_ill', 'Dadah Terlarang', 'Illicit Drugs'); tr('l_fam', 'SEJARAH KELUARGA:', 'FAMILY HISTORY:'); tr('tc_ht', 'Darah Tinggi', 'Hypertension'); tr('tc_dm', 'Kencing Manis', 'Diabetes'); tr('tc_hd', 'Sakit Jantung', 'Heart Disease'); tr('tc_st', 'Angin Ahmar (Stroke)', 'Stroke'); tr('tc_hc', 'Kolesterol Tinggi', 'High Cholesterol'); tr('tc_ca', 'Kanser', 'Cancer'); tr('l_famCaType', 'JENIS KANSER:', 'CANCER TYPE:'); tr('tca_br', 'Payudara', 'Breast'); tr('tca_cx', 'Serviks', 'Cervical'); tr('tca_ov', 'Ovari', 'Ovarian'); tr('tca_en', 'Kanser Rahim', 'Endometrial Cancer (Womb)'); tr('tca_co', 'Usus (Kolorektal)', 'Colorectal'); tr('tca_lu', 'Paru-paru', 'Lung'); tr('tca_ot', 'Lain-lain', 'Others');
+        document.querySelectorAll('.tl_rel').forEach(e=>e.innerText=isEnglish?'Which family member?':'Nyatakan hubungan?');
+        document.querySelectorAll('.tl_ca_spec').forEach(e=>e.innerText=isEnglish?'Specify Type of Cancer':'Nyatakan Jenis Kanser');
+
+        tr('t_step13', 'Selesai! 🎉', 'All Done! 🎉'); tr('l_doneMsg', 'Nota klinikal dan kod QR anda sedia untuk digunakan. Sila tunjukkan skrin ini kepada doktor.', 'Your clinical note and QR code are ready. Please show this to the doctor.'); tr('b_copy', 'Salin Teks (Copy)', 'Copy Text'); tr('b_saveTxt', 'Simpan Teks (.txt)', 'Save Text (.txt)'); tr('btnSaveQR1', 'Simpan QR Image', 'Save QR Image'); tr('btnTab5QR', '📑 5 SCAN QR (SERENTAK)', '📑 5 SCAN QR (SIMULTANEOUS)'); tr('b_finishExit', '✅ Selesai & Keluar (Pesakit Seterusnya)', '✅ Done & Exit (Next Patient)');
+        let timeBadge = document.getElementById('timeTakenBadge');
+        if (timeBadge && accumulatedSeconds > 0) {
+            timeBadge.innerText = isEnglish
+                ? `⏱️ Time taken: ${formatDurationLabel(accumulatedSeconds, true)}`
+                : `⏱️ Masa diambil: ${formatDurationLabel(accumulatedSeconds, false)}`;
+        }
+
+        const selMap = {
+            "": { ms: "Sila Pilih...", en: "Please Select..." },
+            "Pilih...": { ms: "Pilih...", en: "Select..." },
+            "Melayu": { ms: "Melayu", en: "Malay" },
+            "Cina": { ms: "Cina", en: "Chinese" },
+            "India": { ms: "India", en: "Indian" },
+            "Bumiputera": { ms: "Bumiputera Sabah/Sarawak", en: "Bumiputera (Sabah/Sarawak)" },
+            "Bukan Warganegara": { ms: "Bukan Warganegara", en: "Non-Citizen" },
+            "Lain-lain": { ms: "Lain-lain", en: "Others" },
+            "Islam": { ms: "Islam", en: "Muslim" },
+            "Buddha": { ms: "Buddha", en: "Buddhist" },
+            "Hindu": { ms: "Hindu", en: "Hindu" },
+            "Kristian": { ms: "Kristian", en: "Christian" },
+            "Berkahwin": { ms: "Berkahwin", en: "Married" },
+            "Bujang": { ms: "Bujang", en: "Single" },
+            "Bercerai": { ms: "Bercerai", en: "Divorced" },
+            "Berpisah": { ms: "Berpisah", en: "Separated" },
+            "Balu": { ms: "Balu", en: "Widowed" },
+            "Sekolah Rendah": { ms: "Sekolah Rendah", en: "Primary School" },
+            "Tidak Habis SPM": { ms: "Tidak Habis SPM", en: "Pre-SPM" },
+            "Habis SPM / STPM": { ms: "Habis SPM / STPM", en: "SPM / STPM" },
+            "Diploma": { ms: "Diploma", en: "Diploma" },
+            "Ijazah (Degree)": { ms: "Ijazah (Degree)", en: "Degree" },
+            "Pascasiswazah (Master)": { ms: "Pascasiswazah (Master)", en: "Master's Degree" },
+            "Pascasiswazah (PhD)": { ms: "Pascasiswazah (PhD)", en: "PhD" },
+            "Tiada Pendidikan Formal": { ms: "Tiada Pendidikan Formal", en: "No Formal Education" },
+            "Kerajaan": { ms: "Kerajaan", en: "Government" },
+            "Swasta": { ms: "Swasta", en: "Private" },
+            "Bekerja Sendiri": { ms: "Bekerja Sendiri", en: "Self-employed" },
+            "Suri Rumah": { ms: "Suri Rumah", en: "Housewife" },
+            "Pelajar": { ms: "Pelajar", en: "Student" },
+            "Pesara": { ms: "Pesara", en: "Retiree" },
+            "Tidak Bekerja": { ms: "Tidak Bekerja", en: "Unemployed" },
+            "Tidak": { ms: "Tidak", en: "No" },
+            "Ya": { ms: "Ya", en: "Yes" },
+            "Telah Berhenti": { ms: "Telah Berhenti", en: "Ex-user" },
+            "Teratur": { ms: "Teratur", en: "Regular" },
+            "Tidak Teratur": { ms: "Tidak Teratur", en: "Irregular" },
+            "3-6 hari": { ms: "3-6 hari", en: "3-6 days" },
+            "7-10 hari": { ms: "7-10 hari", en: "7-10 days" },
+            "10-15 hari": { ms: "10-15 hari", en: "10-15 days" },
+            "Lebih 15 hari": { ms: "> 15 hari", en: "> 15 days" },
+            "Dirujuk dengan Surat": { ms: "Dirujuk dengan Surat", en: "Referred with Letter" },
+            "Walk-in / Sendiri": { ms: "Walk-in / Sendiri", en: "Walk-in" },
+            "Tiada": { ms: "Tiada", en: "None" },
+            "Pil Perancang": { ms: "Pil Perancang", en: "OCP (Pills)" },
+            "Suntikan (Depo)": { ms: "Suntikan (Depo)", en: "Injection (Depo)" },
+            "Implan (Susuk)": { ms: "Implan (Susuk)", en: "Implant" },
+            "IUCD": { ms: "IUCD", en: "IUCD" },
+            "Kondom": { ms: "Kondom", en: "Condom" },
+            "Ikat Tiub (BTL)": { ms: "Ikat Tiub (BTL)", en: "Tubal Ligation (BTL)" },
+            "Klinik Kesihatan (KK)": { ms: "Klinik Kesihatan (KK)", en: "Health Clinic (KK)" },
+            "Hospital Kerajaan": { ms: "Hospital Kerajaan", en: "Gov Hospital" },
+            "Klinik Swasta / GP": { ms: "Klinik Swasta / GP", en: "Private Clinic / GP" },
+            "Hospital / Klinik Pakar Swasta": { ms: "Hospital / Klinik Pakar Swasta", en: "Private Specialist Hospital" },
+            "LPPKN": { ms: "LPPKN", en: "LPPKN" },
+            "Tidak relevan": { ms: "Tidak relevan", en: "Not relevant" }
+        };
+
+        document.querySelectorAll('select').forEach(sel => {
+            Array.from(sel.options).forEach(opt => {
+                if (sel.id === 'pSmk' && opt.value === 'Telah Berhenti') {
+                    opt.text = isEnglish ? "Ex-smoker" : "Telah Berhenti";
+                } else {
+                    let key = opt.value;
+                    if (!key && opt.text.includes("Pilih")) key = ""; 
+                    if (selMap[key]) opt.text = isEnglish ? selMap[key].en : selMap[key].ms;
+                }
+            });
+        });
+
+        setPlaceholders('ph_yr', 'Cth: 2024', 'e.g., 2024');
+        setPlaceholders('ph_hosp', 'Taip nama klinik / hospital', 'Type clinic / hospital name');
+        setPlaceholders('ph_loc', 'cth: Klinik Kesihatan', 'e.g., Health Clinic');
+        setPlaceholders('ph_eg12', 'Cth: 12', 'e.g., 12');
+        setPlaceholders('ph_eg50', 'Cth: 50', 'e.g., 50');
+        setPlaceholders('ph_surgt', 'Nyatakan jenis pembedahan...', 'State type of surgery...');
+        setPlaceholders('ph_comp', 'Cth: Pendarahan banyak, darah tinggi...', 'e.g., Heavy bleeding, hypertension...');
+        setPlaceholders('ph_type_here', 'Taip di sini...', 'Type here...');
+        setPlaceholders('ph_rel', 'Cth: Ibu, Kakak...', 'e.g., Mother, Sister...');
+        setPlaceholders('ph_foth', 'Lain-lain makanan...', 'Other foods...');
+        setPlaceholders('ph_fsymp', 'Lain-lain simptom...', 'Other symptoms...');
+        setPlaceholders('ph_doth', 'Lain-lain ubat...', 'Other drugs...');
+        setPlaceholders('ph_dsymp', 'Lain-lain simptom...', 'Other symptoms...');
+        setPlaceholders('ph_med', "Tulis 'Tiada' jika tidak berkenaan...", "Type 'Nil' if not applicable...");
+        setPlaceholders('ph_day12', 'Cth: Hari 1-2', 'e.g., Day 1-2');
+        setPlaceholders('ph_day1and2', 'Cth: Hari 1 dan 2', 'e.g., Day 1 and 2');
+        setPlaceholders('ph_pad', 'Cth: 5 hingga 6 pad', 'e.g., 5 to 6 pads');
+        setPlaceholders('ph_eg5', 'Cth: 5', 'e.g., 5');
+        setPlaceholders('ph_gen_dur', 'Cth: 2 minggu, 1 bulan...', 'e.g., 2 weeks, 1 month...');
+        
+        calcBMIOnFly();
+
+        tr('b_back', 'Kembali', 'Back'); 
+        let sWord = isEnglish?'Step':'Langkah'; document.getElementById('stepProgressText').innerText = `${sWord} ${currStep} / ${totalSteps}`;
+        document.getElementById('btnNavNext').innerText = (currStep === totalSteps-1) ? (isEnglish?'Generate Note':'Jana Nota') : (isEnglish?'Next':'Seterusnya');
+
+        tr('t_half1', 'Tahniah!', 'Congratulations!'); tr('t_half2', 'Anda sudah berjaya melengkapkan separuh daripada borang ini. Teruskan usaha!', 'You have successfully completed half of the form. Keep it up!'); tr('b_half3', 'Teruskan', 'Continue');
+        tr('l_analyMsg', '* Data awanama untuk tujuan kajian dan audit klinikal (Tiada Nama & IC disimpan).', '* Anonymised data for clinical audit and research (No Name & IC stored).');
+        
+        tr('btnCodeRed', '🚨 Kecemasan', '🚨 Emergency');
+        tr('t_cr1', 'KOD MERAH DIAKTIFKAN', 'CODE RED ACTIVATED');
+        tr('t_cr2', 'Sila bertenang. Penggera kecemasan telah dibunyikan.\nKakitangan perubatan sedang menuju ke arah anda.', 'Please stay calm. The emergency alarm has been sounded.\nMedical staff are on their way to you.');
+        tr('b_cr3', 'HENTIKAN PENGGERA', 'STOP ALARM');
+    }
+</script>
+</body>
+</html>
